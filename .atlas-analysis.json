@@ -1,0 +1,130 @@
+{
+  "projectType": "saas",
+  "projectName": "Chatterino7",
+  "projectDescription": "A feature-rich Twitch and Kick chat client forked from Chatterino 2, adding 7TV cosmetics like name paints, personal emotes, animated avatars, and 4x image support.",
+  "theme": "almond",
+  "primaryColor": "#7B5EA7",
+  "lightColor": "#A07FCC",
+  "darkColor": "#4A3570",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/seventv-cosmetics",
+              "features/emotes",
+              "features/highlights",
+              "features/hotkeys",
+              "features/commands",
+              "features/filters",
+              "features/logging"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/accounts",
+              "configuration/themes",
+              "configuration/notifications",
+              "configuration/streamer-mode"
+            ]
+          },
+          {
+            "group": "Platform Support",
+            "pages": [
+              "platforms/twitch",
+              "platforms/kick",
+              "platforms/irc"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Plugin Development",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "plugins/introduction",
+              "plugins/getting-started"
+            ]
+          },
+          {
+            "group": "Lua API Reference",
+            "pages": [
+              "plugins/api/channel",
+              "plugins/api/http",
+              "plugins/api/websocket",
+              "plugins/api/messages",
+              "plugins/api/accounts"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "plugins/guides/permissions",
+              "plugins/guides/typescript"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Contributing",
+        "groups": [
+          {
+            "group": "Building",
+            "pages": [
+              "contributing/building-windows",
+              "contributing/building-linux",
+              "contributing/building-macos",
+              "contributing/building-freebsd"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
+              "contributing/code-guidelines",
+              "contributing/testing",
+              "contributing/changelog"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "7TV Name Paints — custom animated username rendering in chat",
+    "7TV Personal Emotes — subscriber-exclusive personal emote sets",
+    "7TV Animated Profile Avatars — animated avatars in usercards",
+    "4x image support for 7TV and FFZ emotes",
+    "Lua Plugin System — extend Chatterino with sandboxed Lua scripts",
+    "Custom themes via JSON schema",
+    "Hotkey customization for all actions",
+    "Advanced message filtering and highlight rules",
+    "Experimental Kick.com chat support",
+    "AVIF image format support for modern emote rendering"
+  ],
+  "publicApiSurface": [
+    "c2.Channel — interact with Twitch/IRC channels from plugins",
+    "c2.HTTPRequest — make HTTP requests from plugins",
+    "c2.WebSocket — connect to WebSocket servers from plugins",
+    "c2.Message.new() — create rich chat messages from plugins",
+    "c2.register_command() — register custom chat commands",
+    "c2.register_callback() — listen for completion and other events",
+    "c2.current_account() — get the current Twitch account",
+    "c2.log() — write to the Chatterino log",
+    "chatterino.json module — JSON parse/stringify for plugins",
+    "Plugin permissions: FilesystemRead, FilesystemWrite, Network"
+  ]
+}
