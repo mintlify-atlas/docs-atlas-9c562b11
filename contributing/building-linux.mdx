@@ -1,0 +1,96 @@
+---
+title: Building on Linux
+description: How to build Chatterino7 on Linux, including package installation for Ubuntu/Debian, Arch, Fedora, and other distros.
+---
+
+Chatterino7 builds with Qt 6 on Linux. The minimum supported Qt version is **5.15.2**, but Qt 6 is strongly recommended.
+
+## Install Dependencies
+
+<Tabs>
+  <Tab title="Ubuntu">
+    <Warning>
+      Building on Ubuntu requires Docker. Use the official Chatterino build images:
+      - Ubuntu 22.04: `ghcr.io/chatterino/chatterino2-build-ubuntu-22.04`
+      - Ubuntu 24.04: `ghcr.io/chatterino/chatterino2-build-ubuntu-24.04`
+
+      The built binary can be exported from the final image and run on your system if you perform a static build. See the [build.yml workflow](https://github.com/Chatterino/chatterino2/blob/master/.github/workflows/build.yml) for the CMake line used for Ubuntu builds.
+    </Warning>
+  </Tab>
+  <Tab title="Debian 13+">
+    ```sh
+    sudo apt install qt6-base-dev qt6-svg-dev qt6-image-formats-plugins libboost-dev libnotify-dev libssl-dev libsecret-1-dev pkg-config cmake g++ git hunspell
+    ```
+  </Tab>
+  <Tab title="Arch Linux">
+    ```sh
+    sudo pacman -S --needed qt6-base qt6-tools boost-libs openssl qt6-imageformats qt6-svg boost libnotify rapidjson pkgconf cmake hunspell
+    ```
+
+    If you use Wayland, also ensure `qt6-wayland` is installed.
+
+    <Note>
+      You can also use the [chatterino2-git](https://aur.archlinux.org/packages/chatterino2-git/) AUR package to build and install Chatterino automatically.
+    </Note>
+  </Tab>
+  <Tab title="Fedora 39+">
+    ```sh
+    sudo dnf install qt6-qtbase-devel qt6-qtimageformats qt6-qtsvg-devel qt6-qtbase-private-devel g++ git openssl-devel libnotify-devel boost-devel cmake hunspell
+    ```
+
+    This also applies to other Red Hat-like distros (substitute `dnf` with `yum` where needed).
+  </Tab>
+  <Tab title="openSUSE">
+    ```sh
+    sudo zypper install cmake pkgconf boost-devel libboost_json1_89_0-devel desktop-file-utils libappstream-glib8 hunspell ninja doxygen qt6-tools-devel
+    ```
+  </Tab>
+  <Tab title="Gentoo">
+    ```sh
+    doas emerge dev-libs/openssl dev-qt/qt5compat dev-qt/qtbase dev-qt/qtsvg dev-qt/qtimageformats x11-libs/libnotify dev-libs/qtkeychain dev-libs/boost dev-build/cmake app-text/hunspell
+    ```
+  </Tab>
+  <Tab title="NixOS">
+    ```sh
+    nix-shell -p openssl boost qt6.full pkg-config cmake libnotify hunspell
+    ```
+  </Tab>
+</Tabs>
+
+## Build
+
+<Steps>
+  <Step title="Clone the repository">
+    ```sh
+    git clone --recurse-submodules https://github.com/Chatterino/chatterino2.git
+    cd chatterino2
+    ```
+  </Step>
+  <Step title="Create a build directory">
+    ```sh
+    mkdir build
+    cd build
+    ```
+  </Step>
+  <Step title="Configure with CMake">
+    ```sh
+    cmake -DBUILD_WITH_QTKEYCHAIN=OFF -DCHATTERINO_SPELLCHECK=On ..
+    ```
+
+    To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON` to this command.
+  </Step>
+  <Step title="Compile">
+    ```sh
+    cmake --build .
+    ```
+  </Step>
+</Steps>
+
+### Building via Qt Creator
+
+1. Install Qt Creator: `sudo apt install qtcreator` (or your distro's equivalent).
+2. Open `CMakeLists.txt` in Qt Creator and select a build configuration.
+
+## AVIF Support
+
+AVIF image support relies on `libavif` and `kimageformats`. If your distribution's Qt image formats package includes AVIF support, it will be picked up automatically. To disable AVIF support, pass `-DCHATTERINO_NO_AVIF_PLUGIN=ON` to CMake.

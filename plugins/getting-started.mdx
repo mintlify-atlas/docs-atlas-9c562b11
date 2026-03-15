@@ -1,0 +1,136 @@
+---
+title: Getting Started
+description: Create your first Chatterino7 Lua plugin step by step.
+---
+
+This guide walks you through creating a minimal Chatterino plugin that registers a custom chat command.
+
+<Steps>
+  <Step title="Locate the Plugins directory">
+    Open Chatterino and navigate to **Settings → Plugins** to find or confirm the path to your Plugins directory. It sits next to `Settings` and `Logs` in the Chatterino app data folder.
+
+    Create a subdirectory for your plugin:
+
+    ```
+    Plugins/
+    └── hello_plugin/
+    ```
+  </Step>
+
+  <Step title="Create info.json">
+    Inside `hello_plugin/`, create `info.json` with your plugin's metadata. The `version` must be [semver 2.0](https://semver.org/) compliant.
+
+    ```json
+    {
+      "$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/plugin-info.schema.json",
+      "name": "Hello Plugin",
+      "description": "A simple greeting plugin.",
+      "authors": ["YourName"],
+      "homepage": "https://example.com",
+      "tags": ["example"],
+      "version": "0.1.0",
+      "license": "MIT",
+      "permissions": []
+    }
+    ```
+
+    <Note>
+      The `name`, `description`, `authors`, `version`, and `license` fields are required. Omitting any of them will cause the plugin to fail to load.
+    </Note>
+  </Step>
+
+  <Step title="Write init.lua">
+    Create `init.lua` in the same directory. This file is loaded automatically when the plugin is enabled.
+
+    ```lua
+    -- init.lua
+    function cmd_hello(ctx)
+        ctx.channel:add_system_message("Hello, " .. ctx.words[2] .. "!")
+    end
+
+    c2.register_command("/hello", cmd_hello)
+    ```
+
+    When a user types `/hello World` in any channel, Chatterino will display a system message: `Hello, World!`.
+
+    `ctx` is a `CommandContext` table with:
+    - `ctx.words` — a table of the words typed, including the command trigger at index 1.
+    - `ctx.channel` — the `Channel` the command was run in.
+  </Step>
+
+  <Step title="Enable the plugin in Chatterino">
+    1. Open **Settings** (`Ctrl+P` → Settings, or the gear icon).
+    2. Go to the **Plugins** tab.
+    3. Find your plugin in the list and toggle it on.
+
+    Chatterino will load `init.lua` immediately. If there is an error in your Lua code it will appear in the Chatterino log.
+  </Step>
+
+  <Step title="Test your command">
+    Open any channel split and type `/hello Chatterino` in the input box and press Enter. You should see a system message appear:
+
+    ```
+    Hello, Chatterino!
+    ```
+
+    <Tip>
+      If nothing happens, check the Chatterino log for Lua errors. You can open it from the debug menu or by enabling the debug log level.
+    </Tip>
+  </Step>
+</Steps>
+
+## A more complete example
+
+Here is a plugin that shouts a message in uppercase and logs activity:
+
+```lua
+-- init.lua
+function cmd_shout(ctx)
+    table.remove(ctx.words, 1)  -- remove the command name
+    local output = table.concat(ctx.words, " ")
+    ctx.channel:send_message(string.upper(output))
+end
+
+function cmd_words(ctx)
+    ctx.channel:add_system_message("Words are: " .. table.concat(ctx.words, " "))
+end
+
+c2.register_command("/shout", cmd_shout)
+c2.register_command("/words", cmd_words)
+
+c2.log(c2.LogLevel.Info, "Hello plugin loaded!")
+```
+
+## Using require
+
+You can split your plugin across multiple files using `require`. Dots in the module name are converted to path separators:
+
+```lua
+require("utils")       -- loads Plugins/hello_plugin/utils.lua
+require("lib.helpers") -- loads Plugins/hello_plugin/lib/helpers.lua
+```
+
+<Warning>
+  Files inside the `data/` subdirectory cannot be loaded with `require`. Binary chunks are also never loaded.
+</Warning>
+
+## Using the REPL
+
+Chatterino includes a Lua REPL widget (`PluginRepl`) useful for quickly testing snippets without reloading your plugin. Access it from the debug/developer tools section of the Chatterino menu.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Channel API" icon="message" href="/plugins/api/channel">
+    Send messages, add system messages, and inspect channel state.
+  </Card>
+  <Card title="Permissions" icon="shield" href="/plugins/guides/permissions">
+    Learn how to declare and use filesystem and network permissions.
+  </Card>
+  <Card title="HTTP API" icon="arrow-right-arrow-left" href="/plugins/api/http">
+    Make HTTP requests from your plugin.
+  </Card>
+  <Card title="TypeScript" icon="code" href="/plugins/guides/typescript">
+    Write plugins in TypeScript using TypescriptToLua.
+  </Card>
+</CardGroup>

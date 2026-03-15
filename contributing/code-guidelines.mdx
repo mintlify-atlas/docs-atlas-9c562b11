@@ -1,0 +1,229 @@
+---
+title: Code Guidelines
+description: C++ code style, conventions, and tooling guidelines for contributing to Chatterino7.
+---
+
+This is a set of guidelines for contributing to Chatterino. The goal is to teach programmers without a C++ background, people who haven't used Qt, or those with different experience, the idioms of the codebase.
+
+Extra (pedantic) guidelines are available at [https://hackmd.io/@fourtf/chatterino-pendantic-guidelines](https://hackmd.io/@fourtf/chatterino-pendantic-guidelines), but they are considered extras.
+
+## General Guidelines
+
+- Make a **specific branch** for your pull request instead of using `master`, `main`, or `mainline`. This prevents problems with updating your branch after your PR is merged.
+- Doxygen documentation is available at [https://doxygen.chatterino.com](https://doxygen.chatterino.com).
+
+## Tooling
+
+### Formatting
+
+Code is automatically formatted using `clang-format`. The configuration lives in `.clang-format` at the root of the repository. Set up automatic formatting on file save in your editor.
+
+### clang-tidy
+
+Static analysis is configured in `.clang-tidy`. Run it on your changes before submitting a PR.
+
+### Git Blame
+
+To ignore mass-formatting commits in `git blame`, configure the ignore revs file:
+
+```sh
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+## Comments
+
+Comments should only be used to:
+
+- Increase readability (e.g. grouping member variables).
+- Contain information that cannot be expressed in code.
+
+Try to structure your code so that comments are not required.
+
+<CodeGroup>
+```cpp Good example
+/// Result is 0 if a == b, negative if a < b and positive if b > a.
+/// ^^^ You can't know this from the function signature!
+//      Even better: Return a "strong ordering" type.
+int compare(const QString &a, const QString &b);
+```
+```cpp Bad example
+/*
+ * Matches a link and returns std::nullopt if it failed and a
+ * QRegularExpressionMatch on success.
+ * ^^^ This comment just repeats the function signature!!!
+ *
+ * @param text The text that will be checked if it contains a link
+ * ^^^ No need to repeat the obvious.
+ */
+std::optional<QRegularExpressionMatch> matchLink(const QString &text);
+```
+</CodeGroup>
+
+## Code
+
+### Arithmetic Types
+
+Arithmetic types (`char`, `short`, `int`, `long`, `float`, `double`), `bool`, and pointers are **not initialized by default** in C++. Always initialize them to zero using `{}`.
+
+```cpp
+class ArithmeticTypes
+{
+    int thisIs0{};
+    QWidget *thisIsNull{};
+    bool thisIsFalse_{};
+    // int a; // <- Initialized to "random" value.
+
+    std::vector<int> myVec; // <- other types call constructors, no need for {}
+
+    int thisIs5 = 5; // <- Also fine
+};
+
+void myFunc() {
+    int a = 1 + 1; // <- initialized immediately, fine
+}
+```
+
+### Passing Parameters
+
+The way a parameter is passed signals how it will be used inside the function.
+
+**Cheap to copy types** (int, enum, etc.) can be passed by value:
+
+```cpp
+void setValue(int value) {
+    // ...
+}
+```
+
+**References:**
+
+| Type               | Meaning                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| `const Type& name` | _in_ parameter — will not be modified, may be copied inside the function.                  |
+| `Type& name`       | _out_ or _in+out_ parameter — will be modified.                                            |
+
+**Pointers** signal that objects are managed manually and may have lifetimes that exceed the function call.
+
+**R-value references** (`&&`) signal the parameter should be "consumed":
+
+```cpp
+void storeLargeObject(LargeObject &&object) {
+    // ...
+}
+
+void main() {
+    LargeObject large = // ...
+    storeLargeObject(std::move(large));
+
+    std::unique_ptr<Object> unique = // ...
+    storeObject(std::move(unique));
+    // unique now holds nullptr
+}
+```
+
+Use the **lowest level of requirement** — e.g. pass `Channel&` instead of `std::shared_ptr<Channel>&` when possible.
+
+### Members
+
+- All function names are in `camelCase`.
+- Private member variables use `camelCase_` (note the trailing underscore).
+- No `get` prefix for getters. Use `has` or `is` prefix where applicable.
+- Mark functions `const` when applicable.
+
+```cpp
+class NamedObject
+{
+public:
+    const QString &name() const;  // <- no "get" prefix
+    void setName(const QString &name);
+    bool hasLongName() const;     // <- "has" or "is" prefix is okay
+
+    static void myStaticFunction();
+    QString publicName;
+
+private:
+    QString name_;  // <- private variables have "_" suffix
+};
+```
+
+### Casts
+
+- **Avoid** C-style casts: `(type)variable`.
+- Use explicit type casts: `type(variable)`.
+- Or use `static_cast`, `const_cast`, `dynamic_cast`.
+- Avoid `reinterpret_cast` unless necessary.
+
+<CodeGroup>
+```cpp Do
+float f = 123.456;
+int i = int(f);
+
+Base* base = // ...
+Derived* derived = dynamic_cast<Derived*>(base);
+
+const int c = 123;
+const_cast<int &>(c) = 123; // only when necessary
+```
+```cpp Don't
+float f = 123.456;
+int i = (int)f;
+
+Base* base = // ...
+Derived* derived = (Derived*)base;
+
+const int c = 123;
+((int &)c) = 123;
+```
+</CodeGroup>
+
+### `this`
+
+Always use `this` to refer to instance members:
+
+```cpp
+Test::testFunc(int a)
+{
+    // do
+    this->testInt_ += 2;
+    this->testFunc();
+
+    // don't
+    testInt_ -= 123;
+    testFunc(2);
+}
+```
+
+### Managing Resources
+
+**Regular classes:**
+- Keep on the stack if possible.
+- Use `std::unique_ptr` for single ownership.
+- Use `std::shared_ptr` for multiple owners.
+
+**QObject classes:**
+- Use the [Qt object tree](https://doc.qt.io/qt-5/objecttrees.html) to manage lifetimes where possible.
+- Use `variable->deleteLater()` instead of `delete variable`.
+- If an object has no parent, consider `std::unique_ptr<Type, DeleteLater>` from `src/common/Common.hpp`.
+
+### Conventions
+
+**Usage strings** — when informing the user about command syntax, follow the [POSIX standard](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html):
+
+- Square brackets: `[optional arguments]`
+- Angle brackets: `<required arguments>`
+- The word _Usage_ must be capitalized and followed by a colon.
+
+<CodeGroup>
+```text Good
+Usage: /block <user>
+Usage: /unblock <user>. Unblocks a user.
+Usage: /streamlink [channel]
+Usage: /usercard <user> [channel]
+```
+```text Bad
+Usage /streamlink <channel>       <- missing colon
+usage: /streamlink <channel>      <- Usage must be capitalized
+Usage: /streamlink channel        <- required arg must use angle brackets
+Usage: /streamlink <channel>.     <- no dot without a description
+```
+</CodeGroup>

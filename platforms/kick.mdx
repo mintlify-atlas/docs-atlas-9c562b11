@@ -1,0 +1,95 @@
+---
+title: Kick
+description: Experimental Kick.com chat support added in Chatterino7 v7.5.5-beta.1.
+---
+
+<Warning>
+  Kick support is **experimental**. It was introduced in Chatterino7 v7.5.5-beta.1 and is under active development. Expect rough edges, missing features, and potential instability. Report issues at the [Chatterino7 issue tracker](https://github.com/SevenTV/chatterino7/issues).
+</Warning>
+
+Chatterino7 v7.5.5-beta.1 added experimental support for [Kick.com](https://kick.com) chat. This allows you to read and send messages in Kick channels alongside your Twitch channels in the same multi-split layout.
+
+## Adding a Kick Channel
+
+<Steps>
+  <Step title="Open a new split">
+    Click the **+** button on a tab or drag to create a new split in the layout.
+  </Step>
+  <Step title="Enter the Kick channel name">
+    In the channel selector, prefix the channel name with `kick:` followed by the channel's username or slug. For example: `kick:xqc`.
+  </Step>
+  <Step title="Open the channel">
+    Press **Enter**. Chatterino7 connects to the Kick chat server for that channel and begins loading messages.
+  </Step>
+</Steps>
+
+<Note>
+  Kick channel slugs replace non-alphanumeric characters with dashes. If a channel name contains special characters, use the URL slug as it appears on the Kick website.
+</Note>
+
+## Logging In with a Kick Account
+
+Kick account support is managed through **Settings > Accounts**, similar to Twitch. A Kick account allows you to send messages and interact with chat.
+
+## Supported Features
+
+<Tabs>
+  <Tab title="Supported">
+    - Viewing chat messages
+    - Sending messages and replies
+    - 7TV emotes (channel and personal)
+    - Kick channel emotes
+    - Subscriber mode, emote-only mode, follower-only mode, slow mode
+    - Mod and VIP status indicators
+    - Message deletion
+    - Stream live status and viewer count
+    - Stream title and category display
+    - Room mode indicators in split header
+  </Tab>
+  <Tab title="Not Yet Supported">
+    - Native Kick notifications (live alerts)
+    - Kick-specific badges beyond basic mod/VIP/broadcaster
+    - Channel point equivalents (Kick Clips/gifts)
+    - Full moderation action suite (ban/timeout from UI)
+    - BTTV/FFZ emotes on Kick channels
+    - Whispers / direct messages
+  </Tab>
+</Tabs>
+
+## Room Modes on Kick
+
+Kick channels support a subset of the room modes available on Twitch. The following modes are reflected in the split header when active:
+
+| Mode | Description |
+|------|-------------|
+| **Subscribers Mode** | Only channel subscribers can chat |
+| **Emotes Mode** | Only emotes are allowed in messages |
+| **Slow Mode** | A cooldown (in seconds) between messages |
+| **Followers Mode** | Requires following for a minimum duration |
+
+## 7TV Integration on Kick
+
+Chatterino7's 7TV integration works on Kick channels just as it does on Twitch:
+
+- **Channel emote sets** are loaded from 7TV for each Kick channel
+- **Personal emotes** from your linked 7TV Kick connection are available
+- **Emote set updates** are received in real time via the 7TV EventAPI
+- **Cosmetics** (paints, badges, avatars) are applied to Kick users who have a 7TV Kick connection
+
+<Tip>
+  If your 7TV cosmetics do not appear in Kick chat, ensure you have connected your Kick account on the 7TV website under your account connections.
+</Tip>
+
+## Known Limitations
+
+<Accordion title="Rate limiting and message speed">
+  Kick's message rate limits differ from Twitch. Chatterino7 enforces its own client-side send rate limit for Kick channels to avoid triggering server-side throttling. A send-wait timer may appear in the input box when the limit is reached.
+</Accordion>
+
+<Accordion title="Authentication and permissions">
+  Kick's OAuth scope model is still evolving. Some moderation actions available on Twitch may not be exposed through the Kick API, which limits what Chatterino7 can offer for channel moderators.
+</Accordion>
+
+<Accordion title="Experimental stability">
+  Because Kick support is experimental, certain channel configurations or chat patterns may cause unexpected behavior. If you encounter a crash or rendering issue specific to Kick, open a bug report at the Chatterino7 GitHub repository and include the channel name.
+</Accordion>

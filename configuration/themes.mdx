@@ -1,0 +1,309 @@
+---
+title: Themes
+description: Switch between built-in themes or create a fully custom theme using the JSON schema.
+---
+
+Chatterino7 ships with several built-in themes and supports fully custom themes defined in JSON. Themes control the colors of every UI element: the window chrome, tabs, chat splits, messages, scrollbars, and more.
+
+## Built-in Themes
+
+<CardGroup cols={2}>
+  <Card title="Dark" icon="moon">
+    The default theme. Dark backgrounds with light text, designed for extended use in dim environments.
+  </Card>
+  <Card title="Light" icon="sun">
+    A light theme with dark text. Well-suited for bright environments or users who prefer a traditional look.
+  </Card>
+  <Card title="White" icon="circle">
+    A high-contrast white variant. Bright backgrounds with pure-black text.
+  </Card>
+  <Card title="Black" icon="circle-dot">
+    A deep-black variant. Minimal ambient light bleed for OLED screens or very dark rooms.
+  </Card>
+</CardGroup>
+
+To switch themes, go to **Settings > Appearance > Theme**.
+
+### System Theme
+
+Chatterino7 can follow your operating system's light/dark mode preference. When **System** is selected, you can configure which built-in theme to use for light mode and which for dark mode separately.
+
+## Custom Themes
+
+Custom themes are JSON files that override every color in the interface. The full schema is defined in [`docs/ChatterinoTheme.schema.json`](https://github.com/SevenTV/chatterino7/blob/chatterino7/docs/ChatterinoTheme.schema.json) in the source repository.
+
+### Theme File Structure
+
+A theme file has two top-level keys:
+
+| Key | Required | Description |
+|-----|----------|-------------|
+| `metadata` | Yes | Icon theme and fallback theme settings |
+| `colors` | Yes | All color overrides, organized by UI section |
+
+### Color Sections
+
+<Tabs>
+  <Tab title="window">
+    Controls the main application window background and text.
+
+    ```json
+    "window": {
+      "background": "#1e1e2e",
+      "text": "#cdd6f4"
+    }
+    ```
+  </Tab>
+  <Tab title="tabs">
+    Controls the tab bar appearance for all tab states: regular, new message, highlighted, and selected. Also includes the live indicator dot color.
+
+    ```json
+    "tabs": {
+      "regular": {
+        "text": "#6c7086",
+        "backgrounds": {
+          "regular": "#181825",
+          "hover": "#1e1e2e",
+          "unfocused": "#181825"
+        },
+        "line": {
+          "regular": "#313244",
+          "hover": "#45475a",
+          "unfocused": "#313244"
+        }
+      },
+      "selected": { "..." : "..." },
+      "highlighted": { "..." : "..." },
+      "newMessage": { "..." : "..." },
+      "dividerLine": "#313244",
+      "liveIndicator": "#a6e3a1",
+      "rerunIndicator": "#fab387"
+    }
+    ```
+  </Tab>
+  <Tab title="splits">
+    Controls the chat split area: background, message separator, resize handles, the split header (channel name bar), and the message input box.
+
+    ```json
+    "splits": {
+      "background": "#1e1e2e",
+      "messageSeperator": "#313244",
+      "resizeHandle": "#89b4fa",
+      "resizeHandleBackground": "#313244",
+      "dropPreview": "#89b4fa40",
+      "dropPreviewBorder": "#89b4fa",
+      "dropTargetRect": "#89b4fa20",
+      "dropTargetRectBorder": "#89b4fa",
+      "header": {
+        "background": "#181825",
+        "border": "#313244",
+        "focusedBackground": "#1e1e2e",
+        "focusedBorder": "#89b4fa",
+        "text": "#cdd6f4",
+        "focusedText": "#cdd6f4"
+      },
+      "input": {
+        "background": "#181825",
+        "backgroundPulse": "#313244",
+        "text": "#cdd6f4"
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="messages">
+    Controls message text colors, background alternation, highlight animations, selection color, and disabled message appearance.
+
+    ```json
+    "messages": {
+      "textColors": {
+        "regular": "#cdd6f4",
+        "caret": "#cdd6f4",
+        "link": "#89b4fa",
+        "system": "#6c7086",
+        "chatPlaceholder": "#45475a"
+      },
+      "backgrounds": {
+        "regular": "#1e1e2e",
+        "alternate": "#181825"
+      },
+      "disabled": "#6c708680",
+      "selection": "#89b4fa40",
+      "highlightAnimationStart": "#f38ba840",
+      "highlightAnimationEnd": "#1e1e2e"
+    }
+    ```
+  </Tab>
+  <Tab title="scrollbars">
+    Controls the scrollbar track, thumb, and selected thumb colors.
+
+    ```json
+    "scrollbars": {
+      "background": "#181825",
+      "thumb": "#45475a",
+      "thumbSelected": "#89b4fa"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Metadata
+
+The `metadata` section is required and controls icon visibility and the fallback theme:
+
+```json
+"metadata": {
+  "iconTheme": "light",
+  "fallbackTheme": "Dark"
+}
+```
+
+- **`iconTheme`**: `"light"` uses light (white) icons — best for dark backgrounds. `"dark"` uses dark icons — best for light backgrounds.
+- **`fallbackTheme`**: Which built-in theme to use if a color is missing from the JSON. Options: `"White"`, `"Light"`, `"Dark"`, `"Black"`.
+
+## Complete Example Theme
+
+The following is a minimal complete custom theme based on the Catppuccin Mocha color palette:
+
+<CodeGroup>
+
+```json catppuccin-mocha.json
+{
+  "$schema": "https://raw.githubusercontent.com/SevenTV/chatterino7/chatterino7/docs/ChatterinoTheme.schema.json",
+  "metadata": {
+    "iconTheme": "light",
+    "fallbackTheme": "Dark"
+  },
+  "colors": {
+    "accent": "#89b4fa",
+    "window": {
+      "background": "#1e1e2e",
+      "text": "#cdd6f4"
+    },
+    "tabs": {
+      "dividerLine": "#313244",
+      "liveIndicator": "#a6e3a1",
+      "rerunIndicator": "#fab387",
+      "regular": {
+        "text": "#6c7086",
+        "backgrounds": { "regular": "#181825", "hover": "#1e1e2e", "unfocused": "#181825" },
+        "line": { "regular": "#313244", "hover": "#45475a", "unfocused": "#313244" }
+      },
+      "selected": {
+        "text": "#cdd6f4",
+        "backgrounds": { "regular": "#1e1e2e", "hover": "#1e1e2e", "unfocused": "#181825" },
+        "line": { "regular": "#89b4fa", "hover": "#89b4fa", "unfocused": "#585b70" }
+      },
+      "highlighted": {
+        "text": "#f38ba8",
+        "backgrounds": { "regular": "#181825", "hover": "#1e1e2e", "unfocused": "#181825" },
+        "line": { "regular": "#f38ba8", "hover": "#f38ba8", "unfocused": "#f38ba880" }
+      },
+      "newMessage": {
+        "text": "#a6e3a1",
+        "backgrounds": { "regular": "#181825", "hover": "#1e1e2e", "unfocused": "#181825" },
+        "line": { "regular": "#a6e3a1", "hover": "#a6e3a1", "unfocused": "#a6e3a180" }
+      }
+    },
+    "messages": {
+      "textColors": {
+        "regular": "#cdd6f4",
+        "caret": "#cdd6f4",
+        "link": "#89b4fa",
+        "system": "#6c7086",
+        "chatPlaceholder": "#45475a"
+      },
+      "backgrounds": { "regular": "#1e1e2e", "alternate": "#181825" },
+      "disabled": "#6c708660",
+      "selection": "#89b4fa30",
+      "highlightAnimationStart": "#f38ba840",
+      "highlightAnimationEnd": "#1e1e2e"
+    },
+    "overlayMessages": {
+      "background": "#1e1e2e",
+      "textColors": {
+        "regular": "#cdd6f4",
+        "caret": "#cdd6f4",
+        "link": "#89b4fa",
+        "system": "#6c7086",
+        "chatPlaceholder": "#45475a"
+      },
+      "backgrounds": { "regular": "#1e1e2e", "alternate": "#181825" },
+      "disabled": "#6c708660",
+      "selection": "#89b4fa30"
+    },
+    "scrollbars": {
+      "background": "#181825",
+      "thumb": "#45475a",
+      "thumbSelected": "#89b4fa"
+    },
+    "splits": {
+      "background": "#1e1e2e",
+      "messageSeperator": "#313244",
+      "resizeHandle": "#89b4fa",
+      "resizeHandleBackground": "#31324480",
+      "dropPreview": "#89b4fa30",
+      "dropPreviewBorder": "#89b4fa",
+      "dropTargetRect": "#89b4fa20",
+      "dropTargetRectBorder": "#89b4fa",
+      "header": {
+        "background": "#181825",
+        "border": "#313244",
+        "focusedBackground": "#1e1e2e",
+        "focusedBorder": "#89b4fa",
+        "text": "#cdd6f4",
+        "focusedText": "#cdd6f4"
+      },
+      "input": {
+        "background": "#181825",
+        "backgroundPulse": "#313244",
+        "text": "#cdd6f4"
+      }
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+## Installing a Custom Theme
+
+<Steps>
+  <Step title="Locate the Themes directory">
+    Custom themes live in the **Themes** folder inside Chatterino7's app data directory — the same directory that contains your `Settings` and `Plugins` folders.
+
+    | Platform | Default path |
+    |----------|--------------|
+    | Windows | `%APPDATA%\Chatterino7\Themes\` |
+    | macOS | `~/Library/Application Support/Chatterino7/Themes/` |
+    | Linux | `~/.local/share/chatterino/Themes/` |
+  </Step>
+  <Step title="Place the JSON file">
+    Copy your `.json` theme file into the `Themes` directory. The filename becomes the theme's display name in the settings dropdown (without the `.json` extension).
+  </Step>
+  <Step title="Restart or reload">
+    Restart Chatterino7 (or, if auto-reload is enabled, just save the file) and navigate to **Settings > Appearance > Theme**. Your custom theme will appear in the dropdown.
+  </Step>
+  <Step title="Select the theme">
+    Choose your theme from the dropdown. The UI updates immediately.
+  </Step>
+</Steps>
+
+<Tip>
+  Enable **auto-reload** in the theme settings to have Chatterino7 watch your theme file for changes and apply them live every 500 ms — useful when iterating on colors.
+</Tip>
+
+## Color Format
+
+All color values follow the Qt color format. Accepted formats are:
+
+| Format | Example | Description |
+|--------|---------|-------------|
+| `#RGB` | `#f0f` | 3-digit hex, each digit repeated |
+| `#RRGGBB` | `#ff00ff` | Standard 6-digit hex |
+| `#AARRGGBB` | `#80ff00ff` | 8-digit hex with alpha **prefix** (not suffix) |
+| SVG color name | `cornflowerblue` | Any W3C SVG 1.1 named color |
+| `transparent` | `transparent` | Fully transparent |
+
+<Warning>
+  The alpha channel in `#AARRGGBB` format comes **before** the RGB components, unlike CSS `#RRGGBBAA`. For example, 50% transparent red is `#80ff0000`, not `#ff000080`.
+</Warning>

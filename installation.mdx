@@ -1,0 +1,128 @@
+---
+title: Installation
+description: Download and install Chatterino7 on Windows, macOS, or Linux.
+---
+
+Chatterino7 is available as a pre-built binary for all major platforms. Stable builds are tested and recommended for most users; nightly builds include the latest features and fixes but may be less stable.
+
+<Tabs>
+  <Tab title="Windows">
+    ## Stable release
+
+    Download the latest `.exe` installer or portable `.zip` from the [releases page](https://github.com/SevenTV/chatterino7/releases/latest).
+
+    <Steps>
+      <Step title="Download">
+        Go to the [latest release](https://github.com/SevenTV/chatterino7/releases/latest) and download `Chatterino7.Installer.exe` (installer) or `Chatterino7-x86_64.zip` (portable).
+      </Step>
+      <Step title="Install">
+        Run the installer and follow the prompts, or extract the portable ZIP to a folder of your choice.
+      </Step>
+      <Step title="Launch">
+        Open `chatterino.exe` from the Start Menu shortcut or from the extracted folder.
+      </Step>
+    </Steps>
+
+    ## Chocolatey
+
+    If you use the [Chocolatey](https://chocolatey.org) package manager, you can install and update Chatterino7 from an elevated command prompt:
+
+    ```powershell
+    choco install chatterino7
+    ```
+
+    To upgrade an existing installation:
+
+    ```powershell
+    choco upgrade chatterino7
+    ```
+
+    ## Nightly build
+
+    Nightly builds are built automatically from the latest commits and may contain unfinished features.
+
+    Download from the [nightly release page](https://github.com/SevenTV/chatterino7/releases/tag/nightly-build).
+
+    ## ARM builds (experimental)
+
+    <Warning>
+      ARM builds for Windows are currently experimental. They may have issues that are not present in x86_64 builds.
+    </Warning>
+
+    ARM64 binaries are available on the [latest release page](https://github.com/SevenTV/chatterino7/releases/latest) alongside the standard x86_64 builds.
+
+    ## VC++ Redistributables
+
+    If you see an error about missing DLLs such as `MSVCP140.dll`, install the [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) from Microsoft.
+  </Tab>
+
+  <Tab title="macOS">
+    ## Stable release
+
+    Chatterino7 ships a **universal macOS app** that runs natively on both Intel (x86\_64) and Apple Silicon (ARM) Macs.
+
+    <Steps>
+      <Step title="Download">
+        Go to the [latest release](https://github.com/SevenTV/chatterino7/releases/latest) and download the `.dmg` file.
+      </Step>
+      <Step title="Install">
+        Open the `.dmg`, then drag `Chatterino7.app` into your Applications folder.
+      </Step>
+      <Step title="Launch">
+        Open Chatterino7 from Launchpad or Spotlight. On first launch, macOS may warn you that the app was downloaded from the internet — click **Open** to proceed.
+      </Step>
+    </Steps>
+
+    <Note>
+      The minimum supported macOS version is **13.0 Ventura**.
+    </Note>
+
+    ## Nightly build
+
+    Download the latest nightly `.dmg` from the [nightly release page](https://github.com/SevenTV/chatterino7/releases/tag/nightly-build).
+  </Tab>
+
+  <Tab title="Linux">
+    ## Stable release
+
+    Pre-built Linux binaries are available as an AppImage or distribution-specific packages on the [releases page](https://github.com/SevenTV/chatterino7/releases/latest).
+
+    <Steps>
+      <Step title="Download">
+        Go to the [latest release](https://github.com/SevenTV/chatterino7/releases/latest) and download the AppImage or the package matching your distribution.
+      </Step>
+      <Step title="Make executable (AppImage)">
+        If you downloaded an AppImage, mark it as executable:
+
+        ```bash
+        chmod +x Chatterino7-x86_64.AppImage
+        ```
+      </Step>
+      <Step title="Launch">
+        Run the AppImage directly, or install the distribution package with your package manager.
+      </Step>
+    </Steps>
+
+    ## AVIF image support
+
+    Chatterino7 supports AVIF-format emote images for improved quality and smaller file sizes.
+
+    <Accordion title="AVIF is not working on my Linux install">
+      If AVIF images are not rendering, ensure `qavif.so` from [kimageformats](https://invent.kde.org/frameworks/kimageformats) is installed on your system. Chatterino7 will automatically detect and use it.
+
+      If you build from source and do not have a static `libavif`, pass `-DCHATTERINO_NO_AVIF_PLUGIN=ON` to CMake and rely on the system `qavif.so` plugin instead.
+    </Accordion>
+
+    ## Nightly build
+
+    Download from the [nightly release page](https://github.com/SevenTV/chatterino7/releases/tag/nightly-build).
+  </Tab>
+</Tabs>
+
+## Reporting issues
+
+For bugs or unexpected behaviour related to 7TV features (paints, personal emotes, cosmetics), open an issue in the [Chatterino7 issue tracker](https://github.com/SevenTV/chatterino7/issues).
+
+For issues with features that exist in the upstream Chatterino 2 (not specific to Chatterino7), report them in the [upstream issue tracker](https://github.com/Chatterino/chatterino2/issues).
+
+You can also join the [7TV Discord](https://discord.com/invite/7tv) to get help from the community.

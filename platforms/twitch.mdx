@@ -1,0 +1,135 @@
+---
+title: Twitch
+description: Twitch is the primary platform for Chatterino7, with full chat, moderation, emote, and channel feature support.
+---
+
+Chatterino7 is built around Twitch chat. It connects over IRC for message delivery and uses the Twitch Helix API and EventSub for supplementary data such as stream status, channel points, predictions, and moderation.
+
+## Authentication
+
+Twitch uses an OAuth 2.0 flow. See [Accounts](/configuration/accounts) for the full login walkthrough. You can also browse Twitch channels anonymously without an account.
+
+## Channel Types
+
+When you open a split in Chatterino7, the channel name determines what kind of split is created:
+
+<CardGroup cols={2}>
+  <Card title="Regular Channel" icon="message">
+    Type a channel name (e.g. `xqc`) to open that broadcaster's chat. Messages, emotes, badges, and room modes are all loaded automatically.
+  </Card>
+  <Card title="Mentions" icon="at">
+    The special `/mentions` channel aggregates every message that mentions your username across all open channels.
+  </Card>
+  <Card title="Whispers" icon="envelope">
+    The `/whispers` channel shows your Twitch DM (whisper) history.
+  </Card>
+  <Card title="Live Feed" icon="rss">
+    The `/live` channel shows a feed of live-notification events for channels you follow or have on your notification list.
+  </Card>
+  <Card title="AutoMod" icon="shield-halved">
+    The `/automod` channel shows messages held by AutoMod in channels where you are a moderator, letting you approve or deny them without opening the Twitch dashboard.
+  </Card>
+  <Card title="Watching" icon="eye">
+    The `/watching` channel mirrors a channel you are currently viewing in a browser or player, allowing you to follow along without an explicit split.
+  </Card>
+</CardGroup>
+
+## Emotes
+
+Chatterino7 renders all major Twitch emote types as well as third-party emotes:
+
+<Tabs>
+  <Tab title="Twitch Emotes">
+    - **Global emotes** — available to all users (e.g. `Kappa`, `PogChamp`)
+    - **Subscriber emotes** — unlocked by subscribing to a channel
+    - **Bits (cheermotes)** — animated emotes attached to Bits cheers
+    - **Unlocked emotes** — channel-specific emotes unlocked through channel points or subscriptions
+  </Tab>
+  <Tab title="7TV Emotes">
+    Chatterino7 loads 7TV global and channel emotes automatically. Personal emotes from your linked 7TV account are also available. Emote updates (additions and removals) are received in real time via the 7TV EventAPI.
+  </Tab>
+  <Tab title="BTTV / FFZ">
+    BetterTTV (BTTV) and FrankerFaceZ (FFZ) channel and global emotes are fetched and rendered alongside Twitch emotes. FFZ also provides custom moderator and VIP badge overrides.
+  </Tab>
+</Tabs>
+
+## Room Modes
+
+Active room modes are shown in the split header. Chatterino7 reflects mode changes in real time as the broadcaster or a moderator enables them:
+
+| Mode | Description |
+|------|-------------|
+| **Sub Mode** | Only subscribers can chat |
+| **Emote-Only** | Only Twitch emotes (no plain text) are allowed |
+| **Follower-Only** | Requires following for a minimum duration before chatting |
+| **Slow Mode** | A cooldown (in seconds) between messages from each user |
+| **Unique Chat (R9K)** | Messages must be unique; repeated messages are blocked |
+
+## Chat Badges
+
+Chatterino7 renders all standard Twitch chat badges as well as third-party badges:
+
+- Broadcaster, Moderator, VIP
+- Subscriber (tier 1/2/3 with months)
+- Twitch Staff, Admin, Global Mod
+- Predictions badges
+- Chatterino, BTTV, FFZ, 7TV subscriber and staff badges
+- Custom FFZ moderator/VIP badge overrides (configurable)
+
+Badge visibility can be toggled per-category under **Settings > Appearance > Badges**.
+
+## Moderation Actions
+
+If you are a moderator or broadcaster, you can perform moderation actions directly from the Chatterino7 UI:
+
+<CardGroup cols={2}>
+  <Card title="Timeout" icon="clock">
+    Right-click a message and choose a timeout duration, or click the timeout buttons in the user card. Default timeout buttons are configurable.
+  </Card>
+  <Card title="Ban / Unban" icon="ban">
+    Permanently ban a user from the channel, or unban a previously banned user, from the right-click context menu or user card.
+  </Card>
+  <Card title="Mod / Unmod" icon="shield">
+    Grant or revoke moderator status. Available from the user card.
+  </Card>
+  <Card title="VIP / Unvip" icon="star">
+    Grant or revoke VIP status. Available from the user card.
+  </Card>
+  <Card title="Delete Message" icon="trash">
+    Delete a single message without timing out or banning the user. Available from the right-click message context menu.
+  </Card>
+  <Card title="Raid" icon="rocket">
+    Start a raid to another channel from the channel header menu.
+  </Card>
+</CardGroup>
+
+<Note>
+  Moderation actions use the Twitch Helix API when available, falling back to IRC commands. The protocol used can be configured under **Settings > Advanced > Chat send protocol**.
+</Note>
+
+## Channel Points & Predictions
+
+Chatterino7 displays channel point redemptions in the chat split as system messages. Active predictions show the options and current vote percentages inline.
+
+## Sending Messages
+
+Chatterino7 supports several chat send protocols configurable under **Settings > Advanced**:
+
+| Protocol | Description |
+|----------|-------------|
+| **Default** | Chooses automatically based on context |
+| **IRC** | Always sends via the Twitch IRC gateway |
+| **Helix** | Always sends via the Twitch Helix Chat API |
+
+<Tip>
+  If you experience message-send failures or rate-limit issues, try switching to **Helix** mode, which has better error reporting and higher rate limits for verified bots.
+</Tip>
+
+## Twitch-Specific Split Header Information
+
+The split header can optionally display live stream details. Enable individual fields in **Settings > Appearance > Split header**:
+
+- **Viewer count**
+- **Stream title**
+- **Current game/category**
+- **Stream uptime**

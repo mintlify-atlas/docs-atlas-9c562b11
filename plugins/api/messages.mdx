@@ -1,0 +1,349 @@
+---
+title: Messages
+description: API reference for the Message class, MessageElement types, LinkType enum, and the chatterino.json module.
+---
+
+The Messages API allows plugins to create and add rich chat messages to channels. Messages support text, mentions, timestamps, and other element types.
+
+## Message lifecycle
+
+A `Message` starts as mutable. Once added to a channel with `Channel:add_message`, it becomes **frozen** (immutable). The `frozen` property reflects this state:
+
+```lua
+local my_msg = c2.Message.new({ id = "foobar" })
+assert(not my_msg.frozen)
+my_channel:add_message(my_msg)
+assert(my_msg.frozen)
+```
+
+After freezing, element properties and most message properties can no longer be modified. The `flags` property remains writable even after freezing.
+
+---
+
+## Message.new(data)
+
+Creates a new `Message` from an initialization table.
+
+<ParamField path="data" type="table" required>
+  Initialization data for the message.
+</ParamField>
+
+The `data` table accepts the following fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `string` | Unique identifier for the message |
+| `flags` | `MessageFlag` | Bitfield of message flags |
+| `highlight_color` | `string \| nil` | Highlight color as a hex string (e.g. `"#80ff0000"`) |
+| `elements` | `MessageElementInit[]` | Initial list of message elements |
+| `parse_time` | `number` | Parse timestamp |
+| `search_text` | `string` | Text used for search |
+| `message_text` | `string` | The plain text of the message |
+| `login_name` | `string` | Login name of the message author |
+| `display_name` | `string` | Display name of the message author |
+| `user_id` | `string` | Twitch user ID of the author |
+| `channel_name` | `string` | Name of the channel |
+| `username_color` | `string` | Color of the username |
+| `server_received_time` | `number` | Server timestamp |
+
+```lua
+c2.register_command("/testing", function(ctx)
+    ctx.channel:add_message(c2.Message.new({
+        id = "myplugin-1234",
+        highlight_color = "#80ff0000",
+        flags = c2.MessageFlag.Highlighted,
+        elements = {
+            {
+                type = "text",
+                color = "link",
+                text = "Hover me!",
+                tooltip = "<h1>This is text from my plugin</h1>"
+            },
+            {
+                type = "mention",
+                display_name = "@User",
+                login_name = "twitchdev",
+                fallback_color = "text",
+                user_color = "blue",
+            }
+        }
+    }))
+end)
+```
+
+---
+
+## Message properties
+
+After creation, message properties can be read directly:
+
+```lua
+local msg = c2.Message.new({ id = "foo", flags = c2.MessageFlag.System })
+print(msg.id)     -- "foo"
+print(msg.frozen) -- false
+```
+
+---
+
+## Message:elements()
+
+Returns a reference to the message's element list. The list can be indexed, iterated, and elements can be removed. New elements cannot be added through this reference — use `Message:append_element` instead.
+
+```lua
+local my_msg = c2.Message.new({
+    id = "foo",
+    elements = {
+        { type = "text", text = "foo" },
+        { type = "text", text = "bar" },
+        { type = "text", text = "baz" },
+    }
+})
+local elements = my_msg:elements()
+assert(#elements == 3)
+assert(elements[1].words[1] == "foo")
+assert(elements[2].words[1] == "bar")
+
+elements:erase(2)  -- remove "bar"
+assert(#elements == 2)
+assert(elements[1].words[1] == "foo")
+assert(elements[2].words[1] == "baz")
+```
+
+---
+
+## Message:append_element(data)
+
+Creates a `MessageElement` from a table and appends it to the message. Uses the same structure as the `elements` field in `Message.new`.
+
+<ParamField path="data" type="table" required>
+  The element initialization table.
+</ParamField>
+
+```lua
+local my_msg = c2.Message.new({ id = "foo" })
+my_msg:append_element({
+    type = "text",
+    text = "My text element",
+})
+```
+
+---
+
+## MessageElement
+
+A reference to a single element inside a `Message`. To distinguish element types, check the `type` property.
+
+<Note>
+  Modifications to the parent `Message`'s elements (such as erasing) can change which element a `MessageElement` reference points to.
+</Note>
+
+### Element types
+
+<Tabs>
+  <Tab title="text">
+    A text element. Can span multiple lines.
+
+    **Init fields:**
+
+    | Field | Type | Required | Description |
+    |---|---|---|---|
+    | `type` | `"text"` | Yes | Element type discriminator |
+    | `text` | `string` | Yes | The text content |
+    | `color` | `MessageColor` | No | Color: `"text"`, `"link"`, `"system"`, or a hex color string |
+    | `style` | `FontStyle` | No | Font style |
+    | `flags` | `MessageElementFlag` | No | Element flags |
+    | `tooltip` | `string` | No | HTML tooltip shown on hover |
+    | `trailing_space` | `boolean` | No | Whether to add a trailing space |
+    | `link` | `Link` | No | Link attached to this element |
+
+    **Read properties:** `words` (string[]), `color` (string), `style`
+
+    ```lua
+    {
+        type = "text",
+        color = "link",
+        text = "Hover me!",
+        tooltip = "<h1>This is text from my plugin</h1>"
+    }
+    ```
+  </Tab>
+  <Tab title="single-line-text">
+    Like `text` but constrained to a single line. Same init fields as `text` but with `type = "single-line-text"`.
+  </Tab>
+  <Tab title="mention">
+    A username mention element with user lookup behavior.
+
+    **Init fields:**
+
+    | Field | Type | Required | Description |
+    |---|---|---|---|
+    | `type` | `"mention"` | Yes | Element type discriminator |
+    | `display_name` | `string` | Yes | Display name shown in chat |
+    | `login_name` | `string` | Yes | Twitch login name |
+    | `fallback_color` | `MessageColor` | Yes | Color used when no user color is known |
+    | `user_color` | `MessageColor` | Yes | The user's chat color |
+
+    **Read properties:** `display_name`, `login_name`, `fallback_color`, `user_color`, `words`, `color`
+
+    ```lua
+    {
+        type = "mention",
+        display_name = "@User",
+        login_name = "twitchdev",
+        fallback_color = "text",
+        user_color = "blue",
+    }
+    ```
+  </Tab>
+  <Tab title="timestamp">
+    A timestamp element.
+
+    | Field | Type | Required | Description |
+    |---|---|---|---|
+    | `type` | `"timestamp"` | Yes | Element type discriminator |
+    | `time` | `number` | No | Unix timestamp. Defaults to current time. |
+  </Tab>
+  <Tab title="linebreak">
+    A linebreak element.
+
+    | Field | Type | Required | Description |
+    |---|---|---|---|
+    | `type` | `"linebreak"` | Yes | Element type discriminator |
+    | `flags` | `MessageElementFlag` | No | Element flags |
+  </Tab>
+</Tabs>
+
+---
+
+## MessageFlag enum
+
+Bitfield flags that control message rendering and behavior. Access via `c2.MessageFlag`.
+
+Commonly used flags:
+
+| Flag | Description |
+|---|---|
+| `None` | No flags |
+| `System` | System message |
+| `Highlighted` | Message is highlighted |
+| `Centered` | Message text is centered |
+| `Disabled` | Message is disabled/hidden |
+| `Subscription` | Subscription message |
+| `Whisper` | Whisper message |
+| `Action` | `/me` action message |
+| `FirstMessage` | User's first message in channel |
+| `ReplyMessage` | Message is a reply |
+| `CheerMessage` | Cheer/bits message |
+| `ShowInMentions` | Appears in the mentions tab |
+
+---
+
+## LinkType enum
+
+Describes the behavior of a link attached to a `MessageElement`. Access via `c2.LinkType`.
+
+| `LinkType` | `value` content | Action on click |
+|---|---|---|
+| `Url` | Any URI | Opens in the browser |
+| `UserInfo` | Twitch username or `id:TwitchID` | Opens a user card |
+| `UserAction` | Command or message to send | Sends the command/message |
+| `JumpToChannel` | Channel name | Jumps to an already-open split |
+| `CopyToClipboard` | Any Unicode text | Copies to clipboard |
+| `JumpToMessage` | Message ID | Highlights the message in the current split |
+| `InsertText` | Any text or emote | Inserts text into the split input |
+
+Example with a link:
+
+```lua
+{
+    type = "text",
+    text = "Open usercard",
+    link = {
+        type = c2.LinkType.UserInfo,
+        value = "mm2pl",
+    }
+}
+```
+
+---
+
+## JSON module
+
+Chatterino bundles the `chatterino.json` module for JSON parsing and serialization.
+
+```lua
+local json = require('chatterino.json')
+```
+
+### `json.parse(string [, options])`
+
+Parses a JSON string and returns the corresponding Lua value. Raises an error if the input is not valid JSON.
+
+<ParamField path="string" type="string" required>
+  The JSON string to parse.
+</ParamField>
+
+<ParamField path="options" type="table">
+  Optional parsing options.
+  - `allow_comments` (boolean): Allow C-style comments (`/* */` and `//`).
+  - `allow_trailing_commas` (boolean): Allow trailing commas in objects and arrays.
+</ParamField>
+
+```lua
+local json = require('chatterino.json')
+
+local parsed = json.parse('{"foo": 1}')
+-- { foo = 1 }
+
+-- safe parsing of untrusted input
+local ok, result = pcall(json.parse, 'invalid input')
+-- ok = false, result = "Failed to parse JSON: syntax error..."
+
+-- with options
+local ok, result = pcall(json.parse, '{"foo": 1 /* foo */ }', { allow_comments = true })
+-- ok = true, result = { foo = 1 }
+```
+
+### `json.stringify(value [, options])`
+
+Converts a Lua value to a JSON string. Supports tables and scalars (strings, numbers, booleans).
+
+<ParamField path="value" type="any" required>
+  The Lua value to stringify.
+</ParamField>
+
+<ParamField path="options" type="table">
+  Optional serialization options.
+  - `pretty` (boolean): Use newlines and indentation.
+  - `indent_char` (string, default: space): Character used for indentation.
+  - `indent_size` (number, default: 4): Number of `indent_char` repetitions per nesting level.
+</ParamField>
+
+```lua
+local str = json.stringify({ foo = 1, bar = nil, baz = json.null })
+-- '{"foo":1,"baz":null}'
+
+local pretty = json.stringify({ foo = 1 }, { pretty = true })
+-- {
+--     "foo": 1
+-- }
+```
+
+<Note>
+  Empty tables are stringified as objects (`{}`). To produce an empty array, use `{ [0] = json.null }` which produces `[]`.
+</Note>
+
+### `json.null`
+
+A sentinel value representing JSON `null`. Useful when you need to include `null` in a table without using `nil` (which would cause the key to be invisible).
+
+```lua
+local json = require('chatterino.json')
+
+local str = json.stringify({ foo = 1, bar = nil, baz = json.null })
+-- '{"foo":1,"baz":null}'
+
+local obj = json.parse(str)
+assert(obj.baz == json.null)
+assert(obj.baz ~= nil)
+```

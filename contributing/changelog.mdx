@@ -1,0 +1,95 @@
+---
+title: Changelog
+description: Version history for Chatterino7, the 7TV-enhanced fork of Chatterino2.
+---
+
+This is the changelog for **Chatterino7** (`7.x.x`). Chatterino7 is a fork of the upstream [Chatterino2](https://github.com/Chatterino/chatterino2) project (`2.x.x`) with added 7TV integration and enhancements.
+
+<Note>
+  Version numbers in Chatterino7 use the `7.x.x` scheme. Comparisons between `7.x.x` and upstream `2.y.y` versions are treated as upgrades.
+</Note>
+
+## Unversioned (upcoming)
+
+- **Minor:** Added "Open 7TV user in browser" and "Open channel in browser" (same as left-click) when right-clicking the profile picture in a usercard. ([#400](https://github.com/SevenTV/Chatterino7/pull/400))
+
+<AccordionGroup>
+  <Accordion title="7.5.5-beta.1">
+    **Major**
+    - Added experimental Kick support. ([#351](https://github.com/SevenTV/Chatterino7/pull/351), [#353](https://github.com/SevenTV/Chatterino7/pull/353), [#354](https://github.com/SevenTV/Chatterino7/pull/354), [#355](https://github.com/SevenTV/Chatterino7/pull/355), [#356](https://github.com/SevenTV/Chatterino7/pull/356), [#357](https://github.com/SevenTV/Chatterino7/pull/357), [#360](https://github.com/SevenTV/Chatterino7/pull/360), [#362](https://github.com/SevenTV/Chatterino7/pull/362), and more)
+
+    **Minor**
+    - Increased radius of drop-shadows in paints to match the browser extension. ([#339](https://github.com/SevenTV/Chatterino7/pull/339))
+
+    **Bugfix**
+    - Fixed 7TV users with multiple connections to the same platform not having cosmetics applied on all connected accounts. ([#389](https://github.com/SevenTV/Chatterino7/pull/389))
+    - Fixed URL paints on mentions not being scaled correctly in high-dpi settings.
+
+    **Dev**
+    - Bumped Qt to 6.9.3 on Windows and macOS due to CVE-2025-10728 and CVE-2025-10729.
+    - Updated macOS Homebrew bottles on x86_64 to Sonoma as Ventura was EOL'd 2025-Sep-15. ([#336](https://github.com/SevenTV/Chatterino7/pull/336))
+    - Preemptively treat version comparisons between `7.x.x` and `2.y.y` as upgrades. ([#372](https://github.com/SevenTV/Chatterino7/pull/372))
+    - Chatterino7 now provides experimental ARM builds for Windows. ([#377](https://github.com/SevenTV/Chatterino7/pull/377), [#392](https://github.com/SevenTV/Chatterino7/pull/392))
+  </Accordion>
+
+  <Accordion title="7.5.4">
+    **Bugfix**
+    - Fixed certain paints such as the new "Coder Socks" one not displaying correctly in Chatterino.
+    - Fixed emojis being inserted from shortcodes between words without spaces (some 7TV emotes couldn't be sent).
+
+    **Dev**
+    - Bumped OpenSSL on Windows to 3.5.2.
+  </Accordion>
+
+  <Accordion title="7.5.4-beta.1">
+    **Bugfix**
+    - Fixed paints not appearing as with the browser extension.
+
+    **Dev**
+    - Bumped Qt to 6.9.1 on Windows and macOS.
+  </Accordion>
+
+  <Accordion title="7.5.3">
+    **Dev**
+    - Downgrades are no longer treated as updates and the `v3` endpoint is now used to check for updates.
+  </Accordion>
+
+  <Accordion title="7.5.3-beta.1">
+    **Minor**
+    - Added 7TV Discord link to about section and changed the commit link to point to SevenTV/Chatterino7. ([#305](https://github.com/SevenTV/Chatterino7/pull/305))
+
+    **Bugfix**
+    - Fixed special 7TV emote sets not being applied and not showing in chat.
+    - Opening the avatar of a user from a usercard in the browser now opens the correct URL.
+    - If a user never set their 7TV avatar, the usercard will no longer show a button to switch between Twitch and 7TV.
+    - Fixed mentions becoming unclickable when a user updated/announced their personal emotes.
+
+    **Dev**
+    - Updated kimageformats to v6.11.0, Boost to 1.87.0, and OpenSSL to 3.4.1.
+    - On Windows, Chatterino7 now uses `SevenTV.Chatterino7` as its AUMID.
+  </Accordion>
+
+  <Accordion title="7.5.2-beta.1">
+    **Minor**
+    - Added setting to disable animated 7TV badges.
+    - Added setting to disable 7TV paint shadows.
+
+    **Bugfix**
+    - Paints are no longer rendered in system messages.
+    - Emotes now properly use the AVIF version if it's available and supported.
+    - Fixed 7TV avatars not loading in the usercard.
+
+    **Dev (macOS)**
+    - Changed `CFBundleIdentifier` from `com.chatterino` to `app.7tv.chatterino7`.
+    - A single universal app is now released for macOS (supports both x86_64 and ARM). ([#274](https://github.com/SevenTV/Chatterino7/pull/274), [#279](https://github.com/SevenTV/Chatterino7/pull/279))
+    - The minimum required macOS version is now **13.0 Ventura**.
+
+    **Dev (Windows)**
+    - Updated `libavif` to 1.0.4, `boost` to 1.85, and `openssl` to 3.2.2.
+
+    **Dev**
+    - Updated Conan version used in CI to 2.4.
+    - Refactored paints to avoid creation of intermediate widgets. ([#277](https://github.com/SevenTV/Chatterino7/pull/277))
+    - The client version is now sent through URL parameters to the 7TV EventAPI.
+  </Accordion>
+</AccordionGroup>

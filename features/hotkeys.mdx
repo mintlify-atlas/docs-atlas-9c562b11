@@ -1,0 +1,102 @@
+---
+title: Hotkeys
+description: Keyboard shortcuts and how to customize them in Chatterino7.
+---
+
+Chatterino7 has a fully customizable hotkey system. Every action is organized into a **category** (the widget where the shortcut is active), and each action can be bound to one or more key combinations.
+
+## Hotkey concepts
+
+| Term | Meaning |
+|---|---|
+| **Action** | The operation that is performed (e.g. `sendMessage`, `scrollToBottom`). |
+| **Keybinding** | The key combination you press to trigger an action (e.g. `Ctrl+Enter`). |
+| **Category** | The context in which the shortcut is active (e.g. `SplitInput`, `Split`, `Window`). |
+| **Shortcut** | The internal Qt `QShortcut` object created from a hotkey definition. |
+
+## Hotkey categories
+
+Hotkeys are scoped to the widget where they make sense:
+
+<CardGroup cols={2}>
+  <Card title="Split" icon="table-columns">
+    Actions that operate on a single channel split, such as scrolling, clearing messages, or opening the search overlay.
+  </Card>
+  <Card title="Split Input" icon="keyboard">
+    Actions within the message input box, such as sending a message, cycling through history, or inserting an emote.
+  </Card>
+  <Card title="Window" icon="window-maximize">
+    Global application-level actions such as toggling the settings dialog or managing tabs.
+  </Card>
+  <Card title="Popup Window" icon="arrow-up-right-from-square">
+    Actions for floating popup windows such as search results or user cards.
+  </Card>
+</CardGroup>
+
+## Default hotkeys
+
+<Tabs>
+  <Tab title="Window">
+    | Action | Default binding |
+    |---|---|
+    | Open Settings | `Ctrl+P` |
+    | New Tab | `Ctrl+T` |
+    | Close Tab | `Ctrl+W` |
+    | Next Tab | `Ctrl+Tab` |
+    | Previous Tab | `Ctrl+Shift+Tab` |
+  </Tab>
+  <Tab title="Split">
+    | Action | Default binding |
+    |---|---|
+    | Scroll to bottom | `Ctrl+End` |
+    | Scroll to top | `Ctrl+Home` |
+    | Scroll up (page) | `Page Up` |
+    | Scroll down (page) | `Page Down` |
+    | Clear messages | `Ctrl+L` |
+    | Search | `Ctrl+F` |
+  </Tab>
+  <Tab title="Split Input">
+    | Action | Default binding |
+    |---|---|
+    | Send message | `Enter` |
+    | Send message (keep text) | `Ctrl+Enter` |
+    | Previous message in history | `Up Arrow` |
+    | Next message in history | `Down Arrow` |
+    | Tab-complete emote or username | `Tab` |
+  </Tab>
+</Tabs>
+
+## Customizing hotkeys
+
+<Steps>
+  <Step title="Open the Hotkeys settings">
+    Go to **Settings** (`Ctrl+P`) and select the **Hotkeys** tab.
+  </Step>
+  <Step title="Select a category">
+    Choose the category from the left panel (Window, Split, Split Input, or Popup Window).
+  </Step>
+  <Step title="Edit a binding">
+    Double-click the keybinding column of an existing action to change its key combination. Press the new key combination while the field is focused, then confirm.
+  </Step>
+  <Step title="Add a new binding">
+    Click **Add hotkey**, choose the action from the dropdown, and press your desired key combination.
+  </Step>
+  <Step title="Reset to defaults">
+    To revert all hotkeys to their factory defaults, click **Reset to defaults** at the bottom of the Hotkeys settings page.
+  </Step>
+</Steps>
+
+<Warning>
+  Hotkey names in the configuration are fixed identifiers. Renaming a default hotkey entry is not supported — doing so would cause the renamed entry to be recreated with the default binding on next launch, potentially resulting in duplicate bindings.
+</Warning>
+
+## How hotkeys work internally
+
+Each hotkey is defined as a template that specifies:
+
+- The **category** (e.g. `HotkeyCategory::Split`)
+- The **action name** (e.g. `scrollToBottom`)
+- The **key sequence** (e.g. `Ctrl+End`)
+- Optional **arguments** passed to the action handler
+
+When Chatterino7 starts, hotkey definitions are loaded from the settings file and converted into `QShortcut` objects attached to the appropriate widgets. The shortcut context (e.g. `Qt::WidgetWithChildrenShortcut`) ensures that a split-scoped shortcut only fires when a split has keyboard focus.

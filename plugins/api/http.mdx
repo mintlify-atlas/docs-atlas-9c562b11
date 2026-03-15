@@ -1,0 +1,197 @@
+---
+title: HTTP
+description: API reference for HTTPRequest and HTTPResponse in Chatterino7 Lua plugins.
+---
+
+The HTTP API lets plugins send HTTP requests to external servers. It is fully asynchronous — callbacks are invoked when the request completes or fails.
+
+<Warning>
+  The `Network` permission is required in `info.json` to use any HTTP functionality.
+
+  ```json
+  {
+    "permissions": [
+      { "type": "Network" }
+    ]
+  }
+  ```
+</Warning>
+
+<Note>
+  Do not create an `HTTPRequest` that you never call `execute()` on. Doing so leaks the callback functions and all their upvalues.
+</Note>
+
+## HTTPMethod enum
+
+Specifies the HTTP method for a request. Access via `c2.HTTPMethod`.
+
+| Key | Description |
+|---|---|
+| `Get` | HTTP GET |
+| `Post` | HTTP POST |
+| `Put` | HTTP PUT |
+| `Delete` | HTTP DELETE |
+| `Patch` | HTTP PATCH |
+
+<Note>
+  The numeric values behind these keys may change between Chatterino versions. Always use the named keys.
+</Note>
+
+---
+
+## HTTPRequest
+
+### `HTTPRequest.create(method, url)`
+
+Creates a new `HTTPRequest`. Must be followed eventually by `execute()`.
+
+<ParamField path="method" type="HTTPMethod" required>
+  The HTTP method to use (e.g. `c2.HTTPMethod.Get`).
+</ParamField>
+
+<ParamField path="url" type="string" required>
+  A valid URL string (e.g. `"https://example.com/api/data"`).
+</ParamField>
+
+```lua
+local req = c2.HTTPRequest.create(c2.HTTPMethod.Get, "https://example.com")
+req:on_success(function(res)
+    print(res:data())
+end)
+req:execute()
+```
+
+### `HTTPRequest:on_success(callback)`
+
+Sets the success callback. Called when the request completes with a non-error response.
+
+<ParamField path="callback" type="function" required>
+  A function that receives one `HTTPResponse` argument.
+</ParamField>
+
+### `HTTPRequest:on_error(callback)`
+
+Sets the error callback. Called when the request fails. Use `HTTPResponse:error()` inside the callback to get a description of the failure.
+
+<ParamField path="callback" type="function" required>
+  A function that receives one `HTTPResponse` argument.
+</ParamField>
+
+### `HTTPRequest:finally(callback)`
+
+Sets the finally callback. Always called after either the success or error callback.
+
+<ParamField path="callback" type="function" required>
+  A function that takes no parameters and returns nothing.
+</ParamField>
+
+### `HTTPRequest:set_timeout(timeout)`
+
+Sets the request timeout in milliseconds.
+
+<ParamField path="timeout" type="number" required>
+  Timeout duration in milliseconds.
+</ParamField>
+
+### `HTTPRequest:set_payload(data)`
+
+Sets the request body. Used with POST, PUT, and PATCH requests.
+
+<ParamField path="data" type="string" required>
+  The request body as a string.
+</ParamField>
+
+### `HTTPRequest:set_header(name, value)`
+
+Adds or overwrites a request header. Non-string values are converted to strings automatically.
+
+<ParamField path="name" type="string" required>
+  The header name.
+</ParamField>
+
+<ParamField path="value" type="string" required>
+  The header value.
+</ParamField>
+
+### `HTTPRequest:execute()`
+
+Sends the request. Returns nothing. Callbacks are invoked asynchronously.
+
+---
+
+## HTTPResponse
+
+Received as the argument to `on_success` and `on_error` callbacks.
+
+### `HTTPResponse:data()`
+
+Returns the response body as a string. Usually UTF-8 encoded, but may be arbitrary binary data.
+
+### `HTTPResponse:error()`
+
+If an error occurred, returns a human-readable description such as `"ConnectionRefusedError"` or `"401"`.
+
+### `HTTPResponse:status()`
+
+Returns the HTTP status code as a number, or `nil` if the request failed before a status code was received.
+
+---
+
+## Full example
+
+```lua
+local url = "http://localhost:8080/thing"
+local request = c2.HTTPRequest.create(c2.HTTPMethod.Post, url)
+request:set_timeout(1000)
+request:set_payload("TEST!")
+request:set_header("X-Test", "Testing!")
+request:set_header("Content-Type", "text/plain")
+request:on_success(function(res)
+    print('Success!')
+    print(res:status())
+end)
+request:on_error(function(res)
+    print('Error!')
+    print(res:status())
+    print(res:error())
+end)
+request:finally(function()
+    print('Finally')
+end)
+request:execute()
+
+-- On success prints:
+-- Success!
+-- 200
+-- Finally
+
+-- On failure prints:
+-- Error!
+-- nil
+-- ConnectionRefusedError
+-- Finally
+```
+
+## Fetching JSON from an API
+
+```lua
+local json = require('chatterino.json')
+
+local req = c2.HTTPRequest.create(
+    c2.HTTPMethod.Get,
+    "https://api.example.com/data"
+)
+req:set_header("Accept", "application/json")
+req:on_success(function(res)
+    local ok, data = pcall(json.parse, res:data())
+    if ok then
+        c2.log(c2.LogLevel.Info, "Got field: " .. tostring(data.field))
+    else
+        c2.log(c2.LogLevel.Warning, "Failed to parse response: " .. data)
+    end
+end)
+req:on_error(function(res)
+    c2.log(c2.LogLevel.Warning, "Request failed: " .. res:error())
+end)
+req:execute()
+```

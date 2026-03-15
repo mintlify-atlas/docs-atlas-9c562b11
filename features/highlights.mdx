@@ -1,0 +1,96 @@
+---
+title: Highlights
+description: Configure keyword, username, and badge highlights with custom colors and sounds in Chatterino7.
+---
+
+Highlights draw attention to important messages in chat. Chatterino7 supports three distinct types of highlight rules, each with independent color, sound, and mention-tab behavior.
+
+## Types of highlights
+
+<CardGroup cols={2}>
+  <Card title="Keyword highlights" icon="magnifying-glass">
+    Trigger on any message containing a specified word or regex pattern.
+  </Card>
+  <Card title="Username highlights" icon="user">
+    Trigger on any message sent by a specific username.
+  </Card>
+  <Card title="Badge highlights" icon="shield">
+    Trigger on any message from a user who holds a specific Twitch badge.
+  </Card>
+  <Card title="Blacklist" icon="ban">
+    Suppress highlights for specific users or patterns, even if they match other rules.
+  </Card>
+</CardGroup>
+
+## Configuring highlights
+
+All highlight settings are found in **Settings > Highlights**.
+
+### Keyword highlights
+
+1. In **Settings > Highlights**, go to the **Keyword highlights** tab.
+2. Click **Add** to create a new rule.
+3. Enter the **pattern** — a plain word, phrase, or regular expression.
+4. Configure the options for this rule:
+
+| Option | Description |
+|---|---|
+| **Show in Mentions** | Show matching messages in the Mentions tab. |
+| **Play sound** | Play a sound when this rule matches. |
+| **Flash taskbar** | Flash the taskbar button (Windows/Linux). |
+| **Regex** | Treat the pattern as a regular expression. |
+| **Case sensitive** | Apply case-sensitive matching. |
+| **Color** | Set a custom background color for highlighted messages. |
+| **Sound file** | Use a custom audio file instead of the default alert sound. |
+
+### Username highlights
+
+Username highlights work identically to keyword highlights but match on the **sender's username** rather than message content.
+
+1. Go to **Settings > Highlights > User highlights**.
+2. Add the username you want to highlight.
+3. Configure color, sound, and mention-tab behavior the same way.
+
+### Badge highlights
+
+Badge highlights fire whenever a message is sent by someone who holds a specified Twitch badge (e.g. Moderator, Subscriber, VIP, Broadcaster).
+
+1. Go to **Settings > Highlights > Badge highlights**.
+2. Select the badge type from the list.
+3. Assign a color, sound, or mention-tab behavior.
+
+## Custom highlight colors
+
+Each rule can have its own background color for highlighted messages. Colors are specified in hex ARGB format and stored per-rule. Several built-in fallback colors exist for special message types:
+
+| Message type | Fallback color |
+|---|---|
+| Keyword highlight | Configurable per rule |
+| Self message | Yellow tint |
+| Channel point redemption | Purple tint |
+| Subscription notification | Pink tint |
+| First message | Teal tint |
+| Elevated message | Orange tint |
+| Thread reply | Blue tint |
+| AutoMod flagged | Red tint |
+
+## Custom sounds
+
+Each highlight rule can play either:
+
+- The **default alert sound** built into Chatterino7.
+- A **custom audio file** you specify via a file path or URL.
+
+To set a custom sound:
+
+1. Enable **Play sound** for the rule.
+2. Click the file path field next to the sound toggle.
+3. Browse to or paste the path of a supported audio file (WAV, MP3, OGG).
+
+<Note>
+  If a highlight rule has the sound toggle enabled but no custom file is specified, the default Chatterino7 alert sound plays.
+</Note>
+
+## Highlight blacklist
+
+The **Blacklist** tab in highlight settings lets you suppress highlights for specific users. Any user on the blacklist will not trigger keyword, username, or badge highlights — useful for bots or high-volume chatters whose messages would otherwise create constant alerts.

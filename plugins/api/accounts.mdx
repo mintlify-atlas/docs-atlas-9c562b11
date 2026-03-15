@@ -1,0 +1,228 @@
+---
+title: Accounts, Commands & Events
+description: API reference for TwitchAccount, c2.log, c2.register_command, c2.register_callback, and related types in Chatterino7 Lua plugins.
+---
+
+This page covers the core Chatterino API functions for accessing the current account, registering commands, listening to events, and logging.
+
+## c2.current_account()
+
+Returns a `TwitchAccount` representing the currently active Twitch account.
+
+```lua
+local acc = c2.current_account()
+print(acc:is_valid())  -- true unless the user removed the account
+```
+
+---
+
+## TwitchAccount
+
+Represents a Twitch account. There can only be one selected account at a time, but previously selected accounts remain valid until the user removes them from settings.
+
+<Warning>
+  Using any method on an invalid `TwitchAccount` (one that has been removed by the user) raises a Lua error. Always call `is_valid()` first if you stored an account reference.
+</Warning>
+
+### `TwitchAccount:is_valid()`
+
+Returns `true` if this account is still valid (not removed by the user).
+
+```lua
+local acc = c2.current_account()
+print(acc:is_valid())  -- true
+```
+
+### `TwitchAccount:login()`
+
+Returns the login name of the account. This string contains only lowercase ASCII.
+
+```lua
+print(acc:login())  -- "mm2pl"
+```
+
+### `TwitchAccount:id()`
+
+Returns the Twitch user ID of the account as a string. This ID uniquely and persistently identifies the account.
+
+```lua
+print(acc:id())  -- "117691339"
+```
+
+### `TwitchAccount:color()`
+
+Returns the account's chat color as a hex string (e.g. `"#ffdaa520"`). Returns `nil` if the user has not yet sent any messages.
+
+```lua
+print(acc:color())  -- "#ffdaa520"
+```
+
+### `TwitchAccount:is_anon()`
+
+Returns `true` if this account is anonymous (not associated with a Twitch user).
+
+```lua
+if acc:is_anon() then
+    c2.log(c2.LogLevel.Warning, "No account logged in")
+end
+```
+
+---
+
+## c2.log(level, args...)
+
+Writes a message to the Chatterino log. All `args` are converted to strings with `tostring()`.
+
+<ParamField path="level" type="LogLevel" required>
+  The log level (e.g. `c2.LogLevel.Warning`).
+</ParamField>
+
+<ParamField path="args" type="any..." required>
+  One or more values to log.
+</ParamField>
+
+```lua
+c2.log(c2.LogLevel.Warning, "Hello, this shows up in the Chatterino log by default")
+
+c2.log(c2.LogLevel.Debug, "Hello world")
+-- Equivalent to: qCDebug(chatterinoLua) << "[pluginDirectory:Plugin Name]" << "Hello, world";
+```
+
+<Note>
+  `print(...)` is a global alias for `c2.log(c2.LogLevel.Debug, ...)`.
+</Note>
+
+### LogLevel enum
+
+Access via `c2.LogLevel`. The numeric values may change between versions.
+
+| Key | Description |
+|---|---|
+| `Debug` | Verbose debug information |
+| `Info` | General informational messages |
+| `Warning` | Non-critical warnings (shown by default) |
+| `Critical` | Critical errors |
+
+---
+
+## c2.register_command(name, handler)
+
+Registers a new chat command. Returns `true` on success, or `false` if a command with that name already exists.
+
+<ParamField path="name" type="string" required>
+  The command name including the leading `/`, e.g. `"/hello"`.
+</ParamField>
+
+<ParamField path="handler" type="function" required>
+  A function that receives a `CommandContext` argument.
+</ParamField>
+
+```lua
+function cmd_words(ctx)
+    -- ctx.words: table of words including the command trigger
+    -- ctx.channel: the Channel the command was executed in
+    ctx.channel:add_system_message("Words are: " .. table.concat(ctx.words, " "))
+end
+
+c2.register_command("/words", cmd_words)
+```
+
+<Warning>
+  Commands registered inside functions (not at the global scope) may not appear in the Settings UI. Reloading another plugin (which rebuilds window content) will make them appear.
+
+  Spaces in command names are not handled well. See [issue #1517](https://github.com/Chatterino/chatterino2/issues/1517).
+</Warning>
+
+### CommandContext
+
+The table passed to command handlers.
+
+| Field | Type | Description |
+|---|---|---|
+| `words` | `string[]` | Words typed by the user, including the command at index 1. For `/foo bar baz` this is `{"/foo", "bar", "baz"}`. |
+| `channel` | `Channel` | The channel in which the command was executed. |
+
+---
+
+## c2.register_callback(eventType, handler)
+
+Registers a callback to handle a specific event. Currently the only supported event is `c2.EventType.CompletionRequested`.
+
+<ParamField path="eventType" type="EventType" required>
+  The event type to listen for.
+</ParamField>
+
+<ParamField path="handler" type="function" required>
+  The callback function. Its signature depends on the event type.
+</ParamField>
+
+### EventType enum
+
+| Key | Description |
+|---|---|
+| `CompletionRequested` | Fired when the user requests tab-completion in the input box |
+
+### CompletionRequested event
+
+The handler receives a `CompletionEvent` table and must return a `CompletionList` table.
+
+**CompletionEvent fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `query` | `string` | The word currently being completed |
+| `full_text_content` | `string` | The entire contents of the text input |
+| `cursor_position` | `number` | Cursor position in Unicode codepoints (not bytes) |
+| `is_first_word` | `boolean` | Whether `query` is the first word in the input |
+
+**CompletionList fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `values` | `string[]` | The completion strings to offer |
+| `hide_others` | `boolean` | Whether to suppress Chatterino's built-in completions |
+
+**Example input/query mapping:**
+
+| Input | `query` | `full_text_content` | `cursor_position` | `is_first_word` |
+|---|---|---|---|---|
+| `foo│` | `foo` | `foo` | 3 | `true` |
+| `fo│o` | `fo` | `foo` | 2 | `true` |
+| `foo bar│` | `bar` | `foo bar` | 7 | `false` |
+| `foo │bar` | `foo` | `foo bar` | 4 | `false` |
+
+```lua
+function string.startswith(s, other)
+    return string.sub(s, 1, string.len(other)) == other
+end
+
+c2.register_callback(
+    c2.EventType.CompletionRequested,
+    function(event)
+        if ("!join"):startswith(event.query) then
+            return { hide_others = true, values = { "!join" } }
+        end
+        return { hide_others = false, values = {} }
+    end
+)
+```
+
+---
+
+## c2.later(callback, msec)
+
+Schedules `callback` to be called approximately `msec` milliseconds in the future. Does not block Chatterino.
+
+<ParamField path="callback" type="function" required>
+  The function to call after the delay.
+</ParamField>
+
+<ParamField path="msec" type="number" required>
+  Delay in milliseconds.
+</ParamField>
+
+```lua
+c2.later(function()
+    c2.log(c2.LogLevel.Info, "1 second has passed")
+end, 1000)
+```

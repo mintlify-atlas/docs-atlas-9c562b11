@@ -1,80 +1,78 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get up and running with Chatterino7 in minutes.
 ---
 
-## Get started in three steps
+This guide walks you through the essential steps to go from a fresh install to watching and participating in Twitch chat with full 7TV cosmetics support.
 
-Get your documentation site running locally and make your first customization.
+<Steps>
+  <Step title="Download and install Chatterino7">
+    Download the latest stable release for your platform from the [installation guide](/installation).
 
-### Step 1: Set up your local environment
+    <Tip>
+      If you already have Chatterino 2 installed, Chatterino7 is a drop-in replacement. Your existing settings and layout will be preserved.
+    </Tip>
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Add your Twitch account">
+    1. Open **Settings** (gear icon in the top-right, or press `Ctrl+P` and select Settings).
+    2. Go to the **Accounts** tab.
+    3. Click **Add account** and follow the OAuth flow in your browser to authorize Chatterino7.
+    4. Once authorized, your account will appear in the list and be set as active automatically.
 
-### Step 2: Deploy your changes
+    <Note>
+      Chatterino7 uses Twitch's official OAuth flow. Your password is never entered into the app.
+    </Note>
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  <Step title="Open a channel">
+    With a Twitch account connected, you can open any channel's chat:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    1. Click the **+** button on an empty split, or press `Ctrl+T` to create a new split.
+    2. Type the channel name in the input box (e.g. `forsen`) and press **Enter**.
+    3. The chat for that channel will load in the split.
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    You can open multiple channels side-by-side by adding more splits. Use **View > Split > Add split** or drag to resize the layout.
+  </Step>
 
-### Step 3: Go live
+  <Step title="Set up 7TV cosmetics">
+    7TV cosmetics — Name Paints, Personal Emotes, and animated avatars — are enabled automatically when your Twitch account is linked to a 7TV account.
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    - **Paints** appear immediately on any user who has one active on 7TV.
+    - **Personal Emotes** from other users appear in chat once their emote set is loaded.
+    - **Animated Avatars** are shown in usercards when you click a username.
 
-## Next steps
+    No additional configuration is required. Cosmetics are fetched in real time via the 7TV EventAPI as you open channels.
 
-Now that you have your docs running, explore these key features:
+    <Tip>
+      To disable specific cosmetic effects, go to **Settings > General** and look for the 7TV section. You can toggle animated badges and paint drop shadows independently.
+    </Tip>
+  </Step>
+
+  <Step title="Customize your layout">
+    Chatterino7 supports a flexible multi-split layout:
+
+    - **Resize splits**: Drag the dividers between splits to adjust their size.
+    - **Tabs**: Group multiple splits into a tab using **View > New Tab**.
+    - **Popout chat**: Right-click a split header and choose **Popout** to float it in a separate window.
+    - **Themes**: Go to **Settings > Appearance** to switch between dark, light, and system themes.
+    - **Font size**: Adjust the chat font size in **Settings > Appearance > Font**.
+  </Step>
+</Steps>
+
+## What to explore next
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="7TV Cosmetics" icon="sparkles" href="/features/seventv-cosmetics">
+    Learn about Name Paints, Personal Emotes, animated avatars, and badges.
+  </Card>
+  <Card title="Emotes" icon="face-smile" href="/features/emotes">
+    Understand how 7TV, BTTV, FFZ, and Twitch emotes work together.
+  </Card>
+  <Card title="Highlights" icon="bell" href="/features/highlights">
+    Configure keyword, username, and badge highlights with custom sounds.
+  </Card>
+  <Card title="Hotkeys" icon="keyboard" href="/features/hotkeys">
+    Speed up your workflow with customizable keyboard shortcuts.
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

@@ -1,0 +1,110 @@
+---
+title: Filters
+description: Show only specific messages in a split using Chatterino7's expression-based filter system.
+---
+
+Filters allow you to restrict what messages appear in a chat split to only those matching a rule you define. Each split can have its own filter applied, making it easy to create focused views — for example, showing only messages from subscribers, or only messages containing a specific keyword.
+
+## What filters do
+
+When a filter is applied to a split:
+
+- Only messages for which the filter expression evaluates to **true** are displayed.
+- Messages that do not match are hidden in that split only; they are not deleted.
+- Other splits watching the same channel are unaffected.
+
+## Applying a filter to a split
+
+<Steps>
+  <Step title="Create a filter">
+    Go to **Settings > Filters** and click **Add filter**.
+  </Step>
+  <Step title="Name and write your expression">
+    Give the filter a name and write a filter expression (see syntax below). Click **OK** to save.
+  </Step>
+  <Step title="Attach the filter to a split">
+    Right-click the split header, select **Set filter**, then choose your saved filter from the list.
+  </Step>
+  <Step title="Remove a filter">
+    Right-click the split header again and select **Remove filter**, or set a different filter.
+  </Step>
+</Steps>
+
+## Filter expression syntax
+
+Expressions are evaluated against each incoming message. The result must be a **Bool** — `true` means the message is shown.
+
+### Identifiers (message fields)
+
+| Identifier | Type | Description |
+|---|---|---|
+| `author.name` | String | The sender's login name. |
+| `author.color` | Color | The sender's username color. |
+| `author.subbed` | Bool | Whether the sender is subscribed. |
+| `author.badges` | StringList | List of badge names the sender holds. |
+| `channel.name` | String | The channel name. |
+| `message.text` | String | The full message text. |
+| `message.length` | Int | Length of the message in characters. |
+
+### Operators
+
+| Operator | Description |
+|---|---|
+| `==` | Equal |
+| `!=` | Not equal |
+| `<`, `>`, `<=`, `>=` | Numeric comparison |
+| `contains` | String or list contains value |
+| `startswith` | String starts with value |
+| `endswith` | String ends with value |
+| `match` | Match against a regular expression |
+| `&&` | Logical AND |
+| `\|\|` | Logical OR |
+| `!` | Logical NOT |
+| `+`, `-`, `*`, `/`, `%` | Arithmetic |
+
+### Types
+
+The filter language is typed. Available types are `String`, `Int`, `Bool`, `Color`, `RegularExpression`, `List`, `StringList`, and `Map`. Mismatched types result in a parse error shown in the filter editor.
+
+### Example expressions
+
+```
+// Show only messages from subscribers
+author.subbed == true
+```
+
+```
+// Show only messages containing "PogChamp"
+message.text contains "PogChamp"
+```
+
+```
+// Show messages from mods or broadcasters
+author.badges contains "moderator" || author.badges contains "broadcaster"
+```
+
+```
+// Show messages shorter than 100 characters from non-subs
+message.length < 100 && author.subbed == false
+```
+
+```
+// Show messages matching a regex
+message.text match /^!\w+/
+```
+
+<Tip>
+  The filter editor validates your expression in real time and shows a type error if the expression cannot evaluate to a Bool. Fix any highlighted issues before saving.
+</Tip>
+
+## Managing filters
+
+All saved filters are listed in **Settings > Filters**. You can:
+
+- **Edit** a filter by double-clicking it.
+- **Delete** a filter from the list — this also detaches it from any splits currently using it.
+- **Rename** a filter without changing its expression.
+
+<Note>
+  Filters are stored with a UUID so that renaming a filter does not break its association with splits that already have it applied.
+</Note>

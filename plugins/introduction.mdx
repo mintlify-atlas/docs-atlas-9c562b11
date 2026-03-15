@@ -1,0 +1,146 @@
+---
+title: Introduction
+description: An overview of Chatterino7's Lua plugin system, directory structure, permissions, and available API.
+---
+
+Chatterino7 supports extending its functionality through Lua plugins. Plugins can register custom commands, send HTTP requests, connect to WebSocket servers, and interact with channels and messages.
+
+<Warning>
+  The plugin system requires Chatterino to be compiled with the `CHATTERINO_PLUGINS` CMake option. Plugins are sandboxed but safety is not guaranteed.
+</Warning>
+
+## Plugin directory structure
+
+Chatterino searches for plugins in the `Plugins` directory in the app data folder, next to `Settings` and `Logs`. Each plugin must have its own subdirectory.
+
+```
+Plugins/
+└── plugin_name/
+    ├── init.lua
+    ├── info.json
+    └── data/
+        └── your data and config files go here
+```
+
+- **`init.lua`** — loaded when the plugin is enabled. Use `require` to load additional files.
+- **`info.json`** — plugin metadata: name, description, authors, version, license, and permissions.
+- **`data/`** — sandboxed directory your plugin can read from and write to (requires permissions).
+
+## info.json schema
+
+The `info.json` file describes your plugin. The `version` field must be [semver 2.0](https://semver.org/) compliant.
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/plugin-info.schema.json",
+  "name": "Test plugin",
+  "description": "This plugin is for testing stuff.",
+  "authors": ["Mm2PL"],
+  "homepage": "https://github.com/Chatterino/Chatterino2",
+  "tags": ["test"],
+  "version": "0.0.0",
+  "license": "MIT",
+  "permissions": []
+}
+```
+
+| Field | Required | Type | Description |
+|---|---|---|---|
+| `name` | Yes | string | Display name shown to the user |
+| `description` | Yes | string | Description shown in the plugin list |
+| `authors` | Yes | string[] | List of author names |
+| `version` | Yes | string | Semver version (e.g. `1.0.0`) |
+| `license` | Yes | string | SPDX license identifier (e.g. `MIT`) |
+| `homepage` | No | string | URL to the plugin's homepage |
+| `tags` | No | string[] | Search tags for future discovery |
+| `permissions` | No | object[] | Permissions the plugin requires |
+
+## Permissions
+
+Plugins declare the permissions they need in `info.json`. Without the appropriate permission, restricted API calls will fail.
+
+<CardGroup cols={3}>
+  <Card title="FilesystemRead" icon="folder-open">
+    Read files from the plugin's `data/` directory.
+  </Card>
+  <Card title="FilesystemWrite" icon="pen-to-square">
+    Write and create files in the plugin's `data/` directory.
+  </Card>
+  <Card title="Network" icon="globe">
+    Send HTTP requests and open WebSocket connections.
+  </Card>
+</CardGroup>
+
+## Available Lua standard library
+
+Chatterino exposes a restricted subset of Lua's standard library:
+
+| Module | Notes |
+|---|---|
+| `_G` | Most globals available |
+| `io` | `stdin`, `stdout`, `stderr` are absent. Some functions require permissions. |
+| `math` | Fully available |
+| `string` | Fully available |
+| `table` | Fully available |
+| `utf8` | Fully available |
+| `debug` | Only `debug.traceback` is exposed |
+
+The official Lua 5.4 manual is at [lua.org/manual/5.4](https://www.lua.org/manual/5.4/manual.html#6).
+
+<Note>
+  `print(...)` is equivalent to `c2.log(c2.LogLevel.Debug, ...)`. There is no standard output in the Chatterino plugin environment.
+</Note>
+
+## Chatterino API (`c2` global)
+
+All Chatterino-specific functionality is available through the global `c2` table.
+
+<CardGroup cols={2}>
+  <Card title="Channel" icon="message" href="/plugins/api/channel">
+    Interact with chat channels: send messages, read message history, and respond to events.
+  </Card>
+  <Card title="HTTP" icon="arrow-right-arrow-left" href="/plugins/api/http">
+    Make HTTP requests with full control over method, headers, payload, and callbacks.
+  </Card>
+  <Card title="WebSocket" icon="plug" href="/plugins/api/websocket">
+    Connect to WebSocket servers for real-time two-way communication.
+  </Card>
+  <Card title="Messages" icon="comment-dots" href="/plugins/api/messages">
+    Create and manipulate rich chat messages with custom elements and styling.
+  </Card>
+  <Card title="Accounts" icon="user" href="/plugins/api/accounts">
+    Access the current Twitch account and register commands and event callbacks.
+  </Card>
+</CardGroup>
+
+## Built-in modules
+
+### `chatterino.json`
+
+Chatterino bundles a JSON module for parsing and serializing data:
+
+```lua
+local json = require('chatterino.json')
+
+local parsed = json.parse('{"foo": 1}')
+-- { foo = 1 }
+
+local str = json.stringify({ foo = 1 })
+-- '{"foo":1}'
+```
+
+See the [Messages API reference](/plugins/api/messages#json-module) for full documentation.
+
+## Safety model
+
+Plugins are sandboxed in the following ways:
+
+- File I/O is restricted to the plugin's own `data/` subdirectory.
+- Dynamic library loading (`package.loadlib`) is unavailable.
+- `io.popen` and `io.tmpfile` are unavailable.
+- Binary Lua chunks cannot be loaded.
+- `load()` is only available in debug builds of Chatterino.
+
+<Warning>
+  While these measures reduce risk, the plugin system does not guarantee complete safety. Only install plugins from sources you trust.
+</Warning>

@@ -1,0 +1,152 @@
+---
+title: TypeScript
+description: Write Chatterino7 plugins in TypeScript using TypescriptToLua.
+---
+
+If you prefer static typing and IDE tooling, you can write Chatterino plugins in TypeScript and compile them to Lua using [TypescriptToLua](https://typescripttolua.github.io).
+
+<Note>
+  TypescriptToLua is a third-party project. Chatterino ships `chatterino.d.ts` type definitions and LuaLS meta files to support this workflow, but does not bundle TypescriptToLua itself.
+</Note>
+
+## Type definition files
+
+Chatterino provides two sets of type definitions:
+
+<CardGroup cols={2}>
+  <Card title="chatterino.d.ts" icon="file-code">
+    TypeScript declarations for use with TypescriptToLua. Located in the `docs/` directory of the Chatterino source.
+  </Card>
+  <Card title="LuaLS meta files" icon="file">
+    LuaLS (Lua Language Server) type definitions in the `/lua-meta` directory. Generated from C++ headers.
+  </Card>
+</CardGroup>
+
+## Setting up TypescriptToLua
+
+<Steps>
+  <Step title="Install TypescriptToLua">
+    Install TypeScript and TypescriptToLua in your project:
+
+    ```bash
+    npm install --save-dev typescript typescript-to-lua
+    ```
+  </Step>
+
+  <Step title="Copy the type definition file">
+    Copy `chatterino.d.ts` from the Chatterino `docs/` directory into your project's source tree, or reference it directly.
+
+    ```
+    my-plugin/
+    ├── src/
+    │   ├── main.ts
+    │   └── chatterino.d.ts
+    ├── tsconfig.json
+    └── info.json
+    ```
+  </Step>
+
+  <Step title="Configure tsconfig.json">
+    Create a `tsconfig.json` targeting the LuaJIT or Lua 5.4 target:
+
+    ```json
+    {
+      "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["ESNext"],
+        "moduleResolution": "node",
+        "strict": true,
+        "luaTarget": "5.4",
+        "luaLibImport": "none"
+      },
+      "tstl": {
+        "luaTarget": "5.4"
+      }
+    }
+    ```
+  </Step>
+
+  <Step title="Write your plugin in TypeScript">
+    Create your main plugin file. The `chatterino.d.ts` declarations provide full type checking on the `c2` global:
+
+    ```typescript
+    // src/main.ts
+
+    function cmdHello(ctx: c2.CommandContext): void {
+        ctx.channel.add_system_message(`Hello, ${ctx.words[1]}!`);
+    }
+
+    c2.register_command("/hello", cmdHello);
+
+    c2.register_callback(
+        c2.EventType.CompletionRequested,
+        (event: c2.CompletionEvent): c2.CompletionList => {
+            if ("!join".startsWith(event.query)) {
+                return { hide_others: true, values: ["!join"] };
+            }
+            return { hide_others: false, values: [] };
+        }
+    );
+    ```
+  </Step>
+
+  <Step title="Compile to Lua">
+    Run the TypescriptToLua compiler:
+
+    ```bash
+    npx tstl
+    ```
+
+    This produces Lua files from your TypeScript source.
+  </Step>
+
+  <Step title="Place the compiled Lua in your plugin directory">
+    Copy the compiled `main.lua` (or whatever your output file is named) to your Chatterino plugin directory as `init.lua`:
+
+    ```
+    Plugins/
+    └── my-plugin/
+        ├── init.lua      ← compiled from main.ts
+        └── info.json
+    ```
+
+    Reload or re-enable the plugin in Chatterino's Settings → Plugins.
+  </Step>
+</Steps>
+
+## LuaLS type definitions
+
+If you prefer to write Lua directly but want IDE support via the [Lua Language Server](https://luals.github.io/), Chatterino generates LuaLS meta files.
+
+These are located in the `/lua-meta` directory of the Chatterino source repository and are **generated automatically** from the C++ headers in `src/controllers/plugins/LuaAPI.hpp` using the script `scripts/make_luals_meta.py`.
+
+To use them:
+1. Point your LuaLS configuration at the `/lua-meta` directory.
+2. LuaLS will pick up the type information for the `c2` global and all related types.
+
+## Limitations
+
+<Warning>
+  Using TypeScript adds complexity to your debugging workflow:
+
+  - Stack traces and error messages refer to compiled Lua line numbers, not TypeScript source lines.
+  - You need to maintain the build step whenever you make changes.
+  - TypescriptToLua may produce Lua that behaves slightly differently from idiomatic hand-written Lua in edge cases.
+
+  For simple plugins, writing Lua directly is usually easier to debug.
+</Warning>
+
+## Available type information
+
+The `chatterino.d.ts` file documents:
+
+- `c2.Channel` — channel interaction
+- `c2.HTTPRequest` / `c2.HTTPResponse` — HTTP requests
+- `c2.WebSocket` — WebSocket connections
+- `c2.Message` — rich message creation
+- `c2.TwitchAccount` — current account access
+- `c2.LogLevel`, `c2.ChannelType`, `c2.HTTPMethod`, `c2.EventType`, `c2.MessageFlag`, `c2.LinkType` — all enums
+- `c2.CommandContext`, `c2.CompletionEvent`, `c2.CompletionList` — callback argument types
+- The `chatterino.json` module
+
+See the [API reference](/plugins/api/channel) pages for full documentation on each type.

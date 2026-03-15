@@ -1,0 +1,166 @@
+---
+title: Permissions
+description: How to declare and use filesystem and network permissions in Chatterino7 Lua plugins.
+---
+
+Chatterino plugins use a permission system to control what resources they can access. Unless otherwise noted, API functions do not require any permissions.
+
+Permissions are declared in the plugin's `info.json` under the `permissions` array. Without the required permission, restricted operations raise an error.
+
+## Available permissions
+
+<CardGroup cols={3}>
+  <Card title="FilesystemRead" icon="folder-open">
+    Read files from the plugin's `data/` directory.
+  </Card>
+  <Card title="FilesystemWrite" icon="pen-to-square">
+    Write and create files in the plugin's `data/` directory.
+  </Card>
+  <Card title="Network" icon="globe">
+    Send HTTP requests and open WebSocket connections.
+  </Card>
+</CardGroup>
+
+## Declaring permissions in info.json
+
+Add each required permission as an object in the `permissions` array:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/Chatterino/chatterino2/master/docs/plugin-info.schema.json",
+  "name": "My Plugin",
+  "description": "A plugin that reads files and makes network requests.",
+  "authors": ["YourName"],
+  "version": "1.0.0",
+  "license": "MIT",
+  "permissions": [
+    { "type": "FilesystemRead" },
+    { "type": "FilesystemWrite" },
+    { "type": "Network" }
+  ]
+}
+```
+
+Only include the permissions your plugin actually needs.
+
+## FilesystemRead
+
+Allows the plugin to read files from its `data/` subdirectory.
+
+```json
+{
+  "permissions": [
+    { "type": "FilesystemRead" }
+  ]
+}
+```
+
+**Functions that require `FilesystemRead`:**
+
+- `io.open(filename, "r")` — open a file for reading
+- `io.input(filename)` — set the default input file by name
+- `io.lines(filename, ...)` — iterate lines of a file by name
+
+## FilesystemWrite
+
+Allows the plugin to write files and create new files in its `data/` subdirectory.
+
+```json
+{
+  "permissions": [
+    { "type": "FilesystemWrite" }
+  ]
+}
+```
+
+**Functions that require `FilesystemWrite`:**
+
+- `io.open(filename, "w")` / `"a"` / `"r+"` / `"w+"` / `"a+"` — any write/append/update mode
+- `io.output(filename)` — set the default output file by name
+
+## Network
+
+Allows the plugin to make HTTP requests and open WebSocket connections.
+
+```json
+{
+  "permissions": [
+    { "type": "Network" }
+  ]
+}
+```
+
+**Functions that require `Network`:**
+
+- `c2.HTTPRequest.create(...)` / `request:execute()`
+- `c2.WebSocket.new(...)`
+
+## io.open modes and permissions
+
+The `io.open` function selects the required permission based on the mode:
+
+| Mode | Permission | Read? | Write? | Truncate? | Create? |
+|---|---|---|---|---|---|
+| `r` (read) | `FilesystemRead` | Yes | No | No | No |
+| `w` (write) | `FilesystemWrite` | No | Yes | Yes | Yes |
+| `a` (append) | `FilesystemWrite` | No | Append | No | Yes |
+| `r+` (update) | `FilesystemWrite` | Yes | Yes | No | No |
+| `w+` (update) | `FilesystemWrite` | Yes | Yes | Yes | Yes |
+| `a+` (update) | `FilesystemWrite` | Yes | Append | No | Yes |
+
+Append `b` to any mode for binary mode (e.g. `"rb"`, `"wb"`).
+
+## Security model
+
+The plugin filesystem sandbox works as follows:
+
+- All `io` operations are restricted to the plugin's own `data/` subdirectory.
+- Paths that attempt to escape the sandbox (e.g. via `../`) are rejected.
+- `io.popen` (process execution) is completely unavailable.
+- `io.tmpfile` is completely unavailable.
+- `stdin`, `stdout`, and `stderr` are not exposed.
+
+<Warning>
+  While the sandbox reduces risk, Chatterino does not guarantee complete safety. Review plugin source code before installation.
+</Warning>
+
+## Example: reading and writing a config file
+
+```lua
+-- info.json must include FilesystemRead and FilesystemWrite
+
+local json = require('chatterino.json')
+
+local function load_config()
+    local f, err = io.open("config.json", "r")
+    if not f then
+        c2.log(c2.LogLevel.Info, "No config found, using defaults: " .. tostring(err))
+        return { greeting = "Hello" }
+    end
+    local content = f:read("*a")
+    f:close()
+    local ok, data = pcall(json.parse, content)
+    if not ok then
+        c2.log(c2.LogLevel.Warning, "Failed to parse config: " .. data)
+        return { greeting = "Hello" }
+    end
+    return data
+end
+
+local function save_config(config)
+    local f = io.open("config.json", "w")
+    if not f then
+        c2.log(c2.LogLevel.Warning, "Could not open config.json for writing")
+        return
+    end
+    f:write(json.stringify(config, { pretty = true }))
+    f:close()
+end
+
+local config = load_config()
+c2.register_command("/setgreeting", function(ctx)
+    config.greeting = ctx.words[2] or "Hello"
+    save_config(config)
+    ctx.channel:add_system_message("Greeting set to: " .. config.greeting)
+end)
+```

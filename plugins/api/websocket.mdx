@@ -1,0 +1,134 @@
+---
+title: WebSocket
+description: API reference for the WebSocket class in Chatterino7 Lua plugins.
+---
+
+The WebSocket API allows plugins to connect to WebSocket servers for real-time bidirectional communication.
+
+<Warning>
+  The `Network` permission is required in `info.json` to use WebSocket connections.
+
+  ```json
+  {
+    "permissions": [
+      { "type": "Network" }
+    ]
+  }
+  ```
+</Warning>
+
+## WebSocket.new(url [, options])
+
+Creates a new WebSocket and immediately begins connecting to `url`.
+
+<ParamField path="url" type="string" required>
+  The WebSocket server URL (e.g. `"wss://echo.websocket.org"`).
+</ParamField>
+
+<ParamField path="options" type="table">
+  Optional configuration table. All fields are optional.
+</ParamField>
+
+The `options` table accepts the following fields:
+
+| Key | Type | Description |
+|---|---|---|
+| `headers` | `table<string, string>` | Additional headers sent during the WebSocket handshake. These overwrite Chatterino's defaults. |
+| `on_open` | `fun()` | Called when the WebSocket handshake completes successfully. |
+| `on_text` | `fun(data: string)` | Called when a text message is received. |
+| `on_binary` | `fun(data: string)` | Called when a binary message is received. The data may not be valid UTF-8. |
+| `on_close` | `fun()` | Called when the connection closes, including when the connection fails to establish. |
+
+The returned WebSocket object also has writable properties `on_open`, `on_close`, `on_text`, and `on_binary`. Handlers can be set either in the options table or directly on the returned object.
+
+## WebSocket:send_text(data)
+
+Sends a text message to the server. If the connection is not yet established, the message is queued and sent once connected.
+
+<ParamField path="data" type="string" required>
+  The text message to send.
+</ParamField>
+
+## WebSocket:send_binary(data)
+
+Sends a binary message to the server. If the connection is not yet established, the message is queued and sent once connected.
+
+<ParamField path="data" type="string" required>
+  The binary data to send.
+</ParamField>
+
+## WebSocket:close()
+
+Closes the WebSocket connection.
+
+---
+
+## Examples
+
+### Basic echo client
+
+```lua
+local ws = c2.WebSocket.new("wss://echo.websocket.org",
+  -- options table is optional
+  {
+    on_open = function()
+      print("Connection established")
+    end,
+    on_close = function()
+      print("Connection closed")
+    end
+  }
+)
+-- handlers can also be set directly on the returned object
+ws.on_text = function(data)
+  print("Got text: " .. data)
+end
+
+ws:send_text("Hello, World!")
+```
+
+### With custom headers
+
+```lua
+local ws = c2.WebSocket.new("wss://api.example.com/ws", {
+    headers = {
+        ["Authorization"] = "Bearer mytoken",
+        ["X-Custom-Header"] = "value",
+    },
+    on_open = function()
+        c2.log(c2.LogLevel.Info, "WebSocket connected")
+    end,
+    on_text = function(data)
+        local json = require('chatterino.json')
+        local ok, msg = pcall(json.parse, data)
+        if ok then
+            c2.log(c2.LogLevel.Info, "Received: " .. tostring(msg.event))
+        end
+    end,
+    on_close = function()
+        c2.log(c2.LogLevel.Warning, "WebSocket disconnected")
+    end,
+})
+```
+
+### Overriding handlers after creation
+
+```lua
+local ws = c2.WebSocket.new("wss://example.com/ws")
+
+ws.on_open = function()
+    ws:send_text("hello")
+end
+
+ws.on_text = function(data)
+    print("Server says: " .. data)
+end
+
+ws.on_binary = function(data)
+    print("Got binary data, " .. #data .. " bytes")
+end
+
+ws.on_close = function()
+    print("Closed")
+end
+```

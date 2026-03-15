@@ -1,0 +1,71 @@
+---
+title: Emotes
+description: How emotes work in Chatterino7, including 7TV, BTTV, FFZ, and Twitch native emotes.
+---
+
+Chatterino7 renders emotes from four providers in every channel. Emotes are loaded when a channel is opened and updated in real time when emote sets change.
+
+## Emote providers
+
+<CardGroup cols={2}>
+  <Card title="7TV" icon="7">
+    Channel and global emotes from 7TV, including animated WebP and AVIF formats. Supports 1x, 2x, 3x, and 4x image scales.
+  </Card>
+  <Card title="BetterTTV (BTTV)" icon="b">
+    Channel-specific and global BTTV emotes. Live updates are handled through the BTTV live update WebSocket.
+  </Card>
+  <Card title="FrankerFaceZ (FFZ)" icon="f">
+    Channel and global FFZ emotes. Supports 1x, 2x, and 4x image scales.
+  </Card>
+  <Card title="Twitch" icon="twitch">
+    Native Twitch emotes including subscriber emotes, Bits emotes, and global emotes. Twitch emotes follow the standard Twitch image CDN.
+  </Card>
+</CardGroup>
+
+## Image quality and formats
+
+### 4x image support
+
+Chatterino7 requests 4x resolution emote images from **7TV** and **FFZ** when a high-DPI display is detected. This results in sharper emotes on HiDPI/Retina screens without any configuration.
+
+### AVIF format
+
+Chatterino7 supports the **AVIF** image format, which provides superior compression and quality compared to WebP or GIF. AVIF is used by 7TV for certain emotes.
+
+<Note>
+  AVIF support requires the `qavif` image plugin (from [kimageformats](https://invent.kde.org/frameworks/kimageformats)). On Linux, this is typically provided by installing the `kimageformats` package. Windows and macOS builds include AVIF support by default.
+
+  If you build from source without a static `libavif`, pass `-DCHATTERINO_NO_AVIF_PLUGIN=ON` to CMake and rely on a system-installed `qavif.so` plugin.
+</Note>
+
+## Channel emotes vs global emotes
+
+| Scope | Description |
+|---|---|
+| **Channel emotes** | Emotes specific to the channel you are watching. Includes the streamer's own 7TV, BTTV, and FFZ emote sets. |
+| **Global emotes** | Emotes available in every channel. Each provider (7TV, BTTV, FFZ, Twitch) maintains its own global emote set. |
+
+When a message is parsed, Chatterino7 checks both scopes. Channel emotes take priority over global emotes when names conflict within the same provider.
+
+## Emote tab-completion
+
+Start typing an emote name in the message input and press **Tab** to cycle through matching emotes. Chatterino7 searches all loaded providers simultaneously.
+
+- Completions are case-insensitive by default.
+- The completion list is ordered: Twitch emotes, then 7TV, BTTV, and FFZ.
+- Emoji shortcodes (e.g. `:smile:`) are also completed via Tab.
+
+<Tip>
+  If an emoji shortcode and an emote share a similar name, pressing Tab will match the emote first if you've typed enough characters to disambiguate.
+</Tip>
+
+## Live emote updates
+
+- **7TV** channel emotes are updated in real time via the 7TV EventAPI WebSocket — when a streamer adds or removes an emote, it appears in chat immediately.
+- **BTTV** emotes are kept up to date via the BTTV live update WebSocket.
+- **FFZ** emotes are fetched on channel open. Changes require closing and reopening the channel to take effect.
+- **Twitch** emotes refresh when the channel is opened.
+
+## Personal Emotes (7TV)
+
+7TV Personal Emotes are emote sets tied to individual users rather than channels. See the [7TV Cosmetics](/features/seventv-cosmetics) page for full details.

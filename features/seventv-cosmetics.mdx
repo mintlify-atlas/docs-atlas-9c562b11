@@ -1,0 +1,102 @@
+---
+title: 7TV Cosmetics
+description: Name Paints, Personal Emotes, animated avatars, and badges from 7TV in Chatterino7.
+---
+
+Chatterino7 renders 7TV subscriber cosmetics directly in chat, providing the same visual experience as the official 7TV browser extension. Cosmetics are fetched in real time from the 7TV EventAPI, so changes appear without restarting the app.
+
+<CardGroup cols={2}>
+  <Card title="Name Paints" icon="paintbrush">
+    Custom animated username rendering with gradient fills, texture maps, drop shadows, and glow effects.
+  </Card>
+  <Card title="Personal Emotes" icon="face-grin-stars">
+    Subscriber-exclusive emote sets visible to all other Chatterino7 users in chat.
+  </Card>
+  <Card title="Animated Avatars" icon="circle-user">
+    Animated profile pictures shown in usercards when you click a username.
+  </Card>
+  <Card title="Badges" icon="shield">
+    7TV subscriber and staff badges displayed next to usernames in chat.
+  </Card>
+</CardGroup>
+
+## Name Paints
+
+Name Paints replace the standard username color with a rich rendering layer that supports several visual styles:
+
+| Paint type | Description |
+|---|---|
+| **Linear gradient** | A smooth color transition drawn along a configurable angle across the username text. |
+| **Radial gradient** | A circular gradient emanating from a center point. |
+| **URL / texture** | A repeating or stretched image texture mapped onto the username glyphs. |
+
+All paint types optionally support:
+
+- **Drop shadows** — a configurable shadow offset and blur drawn behind the username.
+- **Glow effects** — a soft outward glow around the text.
+
+<Note>
+  Paint drop shadows are rendered to match the visual fidelity of the 7TV browser extension. The shadow radius was increased in Chatterino7 7.5.5 to match the browser extension's rendering.
+</Note>
+
+### Disabling paint shadows
+
+If paint shadows are causing performance issues or visual clutter, you can turn them off:
+
+1. Open **Settings**.
+2. Navigate to the **General** or **7TV** section.
+3. Disable **7TV paint shadows**.
+
+## Personal Emotes
+
+Personal Emotes are subscriber-exclusive emote sets tied to individual 7TV users. When a user with a Personal Emote set sends a message, their emotes are available for use by anyone who has them typed in their message.
+
+Chatterino7 fetches Personal Emote sets on demand via the 7TV EventAPI. When a user updates their emote set (adding, renaming, or removing emotes), the changes propagate to all open channels automatically — no restart required.
+
+Personal Emotes are organized per-user:
+
+- Each Twitch or Kick user ID maps to one or more emote set IDs.
+- Emote sets contain named emotes with multiple image scales.
+
+<Tip>
+  Personal Emotes are visible to all Chatterino7 users regardless of whether the viewer is subscribed to 7TV. The emotes are part of the sender's identity, not the viewer's subscription.
+</Tip>
+
+## Animated Profile Avatars
+
+When you click a username in chat to open their usercard, Chatterino7 can display their 7TV animated profile avatar in place of their static Twitch profile picture.
+
+- If the user has no custom 7TV avatar set, the usercard shows only the Twitch profile picture.
+- You can open the avatar URL directly in your browser by right-clicking the profile picture in the usercard.
+
+## Badges
+
+7TV badges are displayed inline next to usernames, just like Twitch's own sub or mod badges. They indicate 7TV subscriber tier, staff roles, or other 7TV-specific designations.
+
+### Disabling animated badges
+
+Badges can be animated (e.g., looping GIF-style). To disable animations:
+
+1. Open **Settings**.
+2. Navigate to the **General** or **7TV** section.
+3. Disable **Animated 7TV badges**.
+
+## Real-time updates via 7TV EventAPI
+
+All 7TV cosmetics are kept in sync using the **7TV EventAPI**, a WebSocket-based push channel. When you open a channel:
+
+1. Chatterino7 connects to the EventAPI and subscribes to cosmetic update events for users visible in chat.
+2. Incoming dispatches update paints, emote sets, and badges in memory without requiring a page reload or reconnect.
+3. The client version is sent to the EventAPI via URL parameters so 7TV can handle version-specific dispatch logic.
+
+This means that if a streamer updates their 7TV paint or emote set mid-stream, you will see the change appear in real time.
+
+<Accordion title="A user's cosmetics are not showing up">
+  Cosmetics are only applied after the EventAPI assigns them to the user. If a user has multiple Twitch or Kick accounts connected to the same 7TV account, cosmetics are applied to all connected platform accounts.
+
+  If cosmetics are still missing, try closing and reopening the channel split to trigger a fresh subscription.
+</Accordion>
+
+<Accordion title="Paints look different from the browser extension">
+  Chatterino7 renders paints using Qt's painter. While close parity with the browser extension is maintained, minor rendering differences may exist for complex texture or URL paints. Report discrepancies in the [Chatterino7 issue tracker](https://github.com/SevenTV/chatterino7/issues).
+</Accordion>

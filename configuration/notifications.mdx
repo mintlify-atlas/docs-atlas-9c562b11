@@ -1,0 +1,98 @@
+---
+title: Notifications
+description: Get notified when channels go live, configure notification sounds, and manage your watched channel list.
+---
+
+Chatterino7 can send you a notification whenever a Twitch channel you follow goes live. Notifications are configured under **Settings > Notifications**.
+
+## How Notifications Work
+
+The notification system polls the Twitch API for live status on a timer. When a channel transitions from offline to live, Chatterino7 fires a notification containing the channel name, stream title, and current game/category.
+
+Notifications work even if you do not have that channel open as a chat split — Chatterino7 tracks channels added to your notification list in the background.
+
+## Adding Channels to the Notification List
+
+<Steps>
+  <Step title="Open Settings">
+    Click the gear icon or press `Ctrl+P` and choose **Settings**.
+  </Step>
+  <Step title="Select Notifications">
+    Navigate to the **Notifications** tab in the left sidebar.
+  </Step>
+  <Step title="Add a channel">
+    Type the Twitch username of the channel you want to monitor in the input box and press **Enter** or click **Add**.
+  </Step>
+  <Step title="Repeat for additional channels">
+    Add as many channels as needed. Each entry appears in the list with a toggle to enable or disable it individually.
+  </Step>
+</Steps>
+
+<Tip>
+  You can right-click any channel split in the main window and choose **Notify when live** to add it directly to the notification list without opening Settings.
+</Tip>
+
+## Notification Types
+
+<CardGroup cols={2}>
+  <Card title="Toast Notifications" icon="bell">
+    On Windows, Chatterino7 sends native toast notifications through the Windows notification system. The toast shows the channel's display name, stream title, and current game.
+  </Card>
+  <Card title="Notification Sound" icon="volume-high">
+    A configurable sound plays when a channel goes live. You can enable or disable the sound independently of visual notifications.
+  </Card>
+  <Card title="Tab Highlight" icon="table-columns">
+    If the channel is open in a split, its tab lights up with the live indicator color to signal that the stream has started.
+  </Card>
+  <Card title="Taskbar Flash" icon="window">
+    On Windows, the Chatterino7 taskbar button flashes when a new live notification arrives, even if the window is minimized.
+  </Card>
+</CardGroup>
+
+## Notification Settings
+
+### Sound
+
+Navigate to **Settings > Notifications** and look for the **Play sound** toggle:
+
+- **Enable notification sound** — plays the default Chatterino notification chime when a channel goes live
+- The sound fires once per live event per channel; going offline and back live triggers the sound again
+
+### Toast Notifications (Windows)
+
+<Note>
+  Toast notifications require Windows 10 or later. On older versions or non-Windows platforms, the notification appears only as a tab highlight and optional sound.
+</Note>
+
+Toast notifications include:
+- **Channel display name** as the notification title
+- **Stream title** — the title set by the broadcaster at the time the stream went live
+- **Game/category** — the category the broadcaster selected
+
+Clicking the toast opens the channel in your browser.
+
+## What Triggers a Notification
+
+| Event | Notification sent? |
+|-------|--------------------|
+| Channel goes live | Yes |
+| Stream title changes | No |
+| Game/category changes | No |
+| Channel goes offline | No |
+| Channel re-runs a VOD | Yes (rerun indicator shown) |
+
+## Channels Without an Open Split
+
+If a channel is on your notification list but not open as a chat split, Chatterino7 still polls its live status using the Twitch Helix API. These are tracked internally as **fake channels** — they receive live status updates but do not load chat messages.
+
+<Accordion title="Why isn't a channel triggering notifications?">
+  Check that:
+  1. The channel name is spelled correctly and matches the Twitch login name (not display name).
+  2. You are logged in — anonymous sessions can still receive notifications, but Twitch API rate limits are stricter without authentication.
+  3. The per-channel toggle in the notification list is enabled.
+  4. Your system's notification settings (Windows Focus Assist, macOS Do Not Disturb) are not suppressing alerts.
+</Accordion>
+
+<Accordion title="Can I get notified for Kick channels?">
+  Notifications are currently supported for Twitch channels only. Kick live-status updates are visible within open Kick channel splits but do not trigger system-level toast notifications.
+</Accordion>

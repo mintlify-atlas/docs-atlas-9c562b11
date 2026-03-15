@@ -1,0 +1,97 @@
+---
+title: Streamer Mode
+description: Hide sensitive information and auth tokens automatically when you go live or open streaming software.
+---
+
+Streamer Mode is designed for streamers who display Chatterino7 on screen. When enabled, it hides sensitive information that should not appear in a broadcast, such as auth tokens, personal data, and content from restricted users.
+
+## What Streamer Mode Hides
+
+When Streamer Mode is active, the following are concealed or suppressed:
+
+<CardGroup cols={2}>
+  <Card title="Auth Tokens" icon="key">
+    OAuth tokens and other credentials are masked in the UI and are never shown in debug panels or tooltips visible on screen.
+  </Card>
+  <Card title="Moderation Actions" icon="shield">
+    When the **hide mod actions** setting is enabled, timeout and ban notifications from moderators are suppressed from the chat view, preventing sensitive mod activity from being broadcast.
+  </Card>
+  <Card title="Restricted User Messages" icon="user-slash">
+    When the **hide restricted users** setting is enabled, messages from users who have been placed in restricted/monitored mode are hidden from view.
+  </Card>
+  <Card title="Personal Information" icon="eye-slash">
+    Any UI elements that could expose private account details (such as connected account names or internal IDs) are hidden.
+  </Card>
+</CardGroup>
+
+## Enabling Streamer Mode
+
+<Steps>
+  <Step title="Open Settings">
+    Click the gear icon in the bottom-left corner, or press `Ctrl+P` and choose **Settings**.
+  </Step>
+  <Step title="Navigate to Application settings">
+    Select the **Application** (or **General**) tab in the Settings sidebar.
+  </Step>
+  <Step title="Configure Streamer Mode">
+    Find the **Streamer Mode** setting. You have three options:
+
+    | Option | Behavior |
+    |--------|----------|
+    | **Disabled** | Streamer Mode is never active |
+    | **Enabled** | Streamer Mode is always active |
+    | **Auto** | Chatterino7 detects streaming software and activates automatically |
+  </Step>
+</Steps>
+
+## Auto-Detection
+
+In **Auto** mode, the `StreamerMode` singleton periodically checks whether known streaming software is running. When a recognized process is detected, Streamer Mode activates automatically; when the software closes, it deactivates.
+
+Processes detected include:
+
+- **OBS Studio**
+- **Streamlabs OBS**
+- **XSplit Broadcaster**
+- Other common broadcasting applications
+
+<Note>
+  Auto-detection polls the running process list at a short interval. There may be a brief delay (typically under a second) between launching or closing your streaming software and Streamer Mode activating or deactivating.
+</Note>
+
+## What Is Visible vs Hidden
+
+<Tabs>
+  <Tab title="Visible in Streamer Mode">
+    - Normal chat messages
+    - Emotes, badges, and usernames
+    - Channel information in split headers
+    - Highlights and mentions
+    - Emote picker and autocomplete
+    - Stream status (live/offline indicator)
+  </Tab>
+  <Tab title="Hidden in Streamer Mode">
+    - Auth tokens and OAuth credentials
+    - Timeout/ban mod action messages *(if hide mod actions is enabled)*
+    - Messages from restricted/monitored users *(if hide restricted users is enabled)*
+    - Sensitive personal account details
+  </Tab>
+</Tabs>
+
+## Granular Controls
+
+Within Streamer Mode, two independent sub-settings let you fine-tune what is hidden:
+
+**Hide Moderation Actions**
+> When enabled alongside Streamer Mode, timeout, ban, and unban notifications are removed from the chat view. This prevents your audience from seeing who is being moderated in real time.
+
+**Hide Messages from Restricted Users**
+> When enabled, messages from users who are under a Twitch restriction (AutoMod holds, monitored users) do not appear in the chat view during a broadcast.
+
+<Tip>
+  You can enable Streamer Mode permanently if you always stream, and use the granular toggles to choose exactly what gets hidden, rather than relying on auto-detection.
+</Tip>
+
+<Warning>
+  Streamer Mode does not prevent chat data from being received — it only hides it from the visible UI. If you have any screen-capture or logging tools beyond Chatterino7 itself, those tools may still capture or store the hidden information.
+</Warning>

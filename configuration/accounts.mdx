@@ -1,0 +1,90 @@
+---
+title: Accounts
+description: Log in with Twitch, manage multiple accounts, and configure account settings including 7TV cosmetics.
+---
+
+Chatterino7 supports multiple Twitch accounts and allows you to browse chat anonymously without logging in. Accounts are managed through **Settings > Accounts**.
+
+## Logging in with Twitch
+
+Chatterino7 uses the standard Twitch OAuth flow to authenticate your account. No password is ever stored — only the OAuth token issued by Twitch.
+
+<Steps>
+  <Step title="Open Settings">
+    Click the gear icon in the bottom-left corner of the window, or press `Ctrl+P` and choose **Settings**.
+  </Step>
+  <Step title="Go to the Accounts tab">
+    In the Settings window, select the **Accounts** tab from the left sidebar.
+  </Step>
+  <Step title="Click Add">
+    Click the **Add** button. Chatterino7 will open your default browser and navigate to the Twitch OAuth authorization page.
+  </Step>
+  <Step title="Authorize in browser">
+    Log in to Twitch (if not already logged in) and click **Authorize** to grant Chatterino7 the required permissions.
+  </Step>
+  <Step title="Return to Chatterino7">
+    After authorization, Twitch redirects your browser to a local page. Chatterino7 captures the token automatically and adds the account to the list.
+  </Step>
+</Steps>
+
+<Note>
+  Chatterino7 requests scopes for reading chat, sending messages, and performing moderation actions if you are a moderator. Review the permission list in the browser before authorizing.
+</Note>
+
+## Adding Multiple Accounts
+
+You can add as many Twitch accounts as you like. This is useful if you moderate multiple channels under different usernames, or if you want a separate account for bot commands.
+
+Repeat the login steps above for each account. Each account appears as a separate entry in the **Accounts** list. The currently active account is shown with a checkmark.
+
+## Switching Between Accounts
+
+The **account switcher** is accessible from the main window toolbar:
+
+1. Click the **user icon** in the bottom-left area of the window.
+2. A dropdown lists all logged-in accounts.
+3. Click any account name to switch to it immediately.
+
+Switching accounts re-connects all open chat splits using the newly selected account's credentials.
+
+## Anonymous Browsing
+
+You do not need to log in to read chat. Chatterino7 can connect to Twitch channels anonymously, letting you view messages and emotes without an account.
+
+<Tip>
+  Anonymous mode is useful for monitoring channels without any account association. You will not be able to send messages, use channel points, or perform moderation actions while browsing anonymously.
+</Tip>
+
+To browse anonymously, simply open Chatterino7 without adding any accounts, or log out of all accounts in **Settings > Accounts**.
+
+## Account Settings
+
+<CardGroup cols={2}>
+  <Card title="Display Name" icon="user">
+    Chatterino7 respects your Twitch display name, including localized names for non-Latin scripts. The username display mode can be configured under **Settings > Appearance** — options include username only, localized name only, or both.
+  </Card>
+  <Card title="User Color" icon="palette">
+    Your chat name color is fetched from Twitch and shown in the message list. Moderators and broadcasters see color-coded names for quick identification. Colors are configurable on Twitch's website.
+  </Card>
+</CardGroup>
+
+## 7TV Account Linking
+
+Chatterino7 automatically integrates with 7TV cosmetics. When your Twitch username matches a 7TV account, the following cosmetics are applied without any manual linking step:
+
+- **Name Paints** — gradient or textured username colors rendered directly in chat
+- **Personal Emotes** — emotes you have added to your personal 7TV emote set
+- **Animated Profile Avatars** — your 7TV avatar shown in usercards
+- **7TV Badges** — subscriber and staff badges from 7TV
+
+<Note>
+  7TV cosmetics are fetched automatically when a channel is opened. If your cosmetics do not appear immediately, wait a few seconds for the 7TV EventAPI connection to be established.
+</Note>
+
+<Accordion title="Why aren't my 7TV cosmetics showing?">
+  Make sure your Twitch username on 7TV matches exactly (including capitalization) the account logged in to Chatterino7. If you have multiple Twitch connections on 7TV, all connected accounts will have cosmetics applied. Restarting Chatterino7 or reopening the channel split can also force a cosmetics refresh.
+</Accordion>
+
+<Accordion title="Can I use 7TV Personal Emotes from another account?">
+  No. Personal emotes are tied to the 7TV account that owns them, which must match your active Twitch login. Switching to a different Twitch account that has its own 7TV connection will load that account's personal emotes instead.
+</Accordion>

@@ -1,0 +1,73 @@
+---
+title: Building on macOS
+description: How to build Chatterino7 on macOS using Homebrew, including universal app builds for Intel and Apple Silicon.
+---
+
+Chatterino7 is built in CI on Intel on macOS 13. Local dev machines for testing are available on Apple Silicon on macOS 13.
+
+<Note>
+  The minimum required macOS version is **13.0 Ventura**.
+</Note>
+
+## Prerequisites
+
+<Steps>
+  <Step title="Install Xcode and Command Line Tools">
+    Install Xcode from the App Store, then start Xcode and go to **Settings → Locations** and activate your Command Line Tools.
+  </Step>
+  <Step title="Install Homebrew">
+    Follow the instructions at [brew.sh](https://brew.sh/#install).
+  </Step>
+  <Step title="Install all dependencies">
+    ```sh
+    brew install boost openssl@3 rapidjson cmake qt@6 libavif
+    ```
+  </Step>
+</Steps>
+
+## Building
+
+<Steps>
+  <Step title="Clone the repository">
+    ```sh
+    git clone --recurse-submodules https://github.com/Chatterino/chatterino2.git
+    cd chatterino2
+    ```
+  </Step>
+  <Step title="Create a build directory">
+    ```sh
+    mkdir build && cd build
+    ```
+  </Step>
+  <Step title="Configure with CMake">
+    ```sh
+    cmake -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@6 ..
+    ```
+
+    To enable Lua plugins in your build, add `-DCHATTERINO_PLUGINS=ON`.
+  </Step>
+  <Step title="Build">
+    ```sh
+    make
+    ```
+  </Step>
+</Steps>
+
+Your binary can be found at `bin/chatterino.app/Contents/MacOS/chatterino`.
+
+## Universal App Builds
+
+Chatterino7 releases a single universal app for macOS, supporting both `x86_64` (Intel) and `arm64` (Apple Silicon). To build a universal binary yourself, pass both architectures to CMake:
+
+```sh
+cmake -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_PREFIX_PATH=/opt/homebrew/opt/qt@6 ..
+make
+```
+
+<Note>
+  Homebrew bottles on x86_64 now use **macOS Sonoma**, as Ventura reached end-of-life on 2025-Sep-15.
+</Note>
+
+## Other IDEs
+
+You can also use Qt Creator or another IDE. The terminal instructions above map directly: set the CMake prefix path to your Homebrew Qt installation (`/opt/homebrew/opt/qt@6`) and configure your build directory accordingly.

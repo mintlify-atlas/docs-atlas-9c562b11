@@ -1,0 +1,94 @@
+---
+title: Logging
+description: Automatically save chat messages to local log files with Chatterino7's built-in logging.
+---
+
+Chatterino7 can log chat messages to plain-text files on your local machine. Logging is configured per-channel and runs silently in the background as long as the channel is open.
+
+## Enabling logging
+
+<Steps>
+  <Step title="Open logging settings">
+    Go to **Settings** and navigate to the **Logging** tab.
+  </Step>
+  <Step title="Enable logging globally">
+    Toggle **Enable logging** to turn on the logging feature.
+  </Step>
+  <Step title="Add channels to log">
+    Click **Add channel** and enter the channel name you want to log. Repeat for each additional channel.
+
+    Channels in the log list will have their messages written to disk whenever they are open in Chatterino7.
+  </Step>
+</Steps>
+
+<Note>
+  Messages are only logged while the channel is open in Chatterino7. Past messages that arrived before the channel was opened are not retroactively written to the log.
+</Note>
+
+## Log file location
+
+Log files are stored in the **Logs** directory alongside Chatterino7's other data directories (Settings, Plugins, etc.). The exact path depends on your platform:
+
+<Tabs>
+  <Tab title="Windows">
+    ```
+    %APPDATA%\Chatterino2\Logs\
+    ```
+    For example:
+    ```
+    C:\Users\YourName\AppData\Roaming\Chatterino2\Logs\
+    ```
+  </Tab>
+  <Tab title="macOS">
+    ```
+    ~/Library/Application Support/Chatterino2/Logs/
+    ```
+  </Tab>
+  <Tab title="Linux">
+    ```
+    ~/.local/share/Chatterino2/logs/
+    ```
+    Or, if `$XDG_DATA_HOME` is set:
+    ```
+    $XDG_DATA_HOME/Chatterino2/logs/
+    ```
+  </Tab>
+</Tabs>
+
+## Log file format and naming
+
+Within the Logs directory, files are organized by channel name. Each day's log is a separate file:
+
+```
+Logs/
+  forsen/
+    forsen-2026-03-15.log
+    forsen-2026-03-14.log
+  xqc/
+    xqc-2026-03-15.log
+```
+
+Each line in a log file is a plain-text representation of a chat message, including a timestamp, username, and message content.
+
+## Managing logged channels
+
+In **Settings > Logging** you can:
+
+- **Add** channels to the logging list.
+- **Remove** a channel to stop logging it (existing log files are not deleted).
+
+<Warning>
+  Removing a channel from the logging list stops future logging but does not delete previously written log files. To free disk space, manually delete the channel's folder from the Logs directory.
+</Warning>
+
+<Accordion title="Logs are not being written">
+  Make sure:
+  1. **Enable logging** is toggled on in Settings.
+  2. The channel is in the logged-channels list.
+  3. Chatterino7 has write permission to the Logs directory.
+  4. The channel split is actually open in Chatterino7 — logging only runs while the split is open.
+</Accordion>
+
+<Accordion title="Where are my old logs from Chatterino 2?">
+  Chatterino7 uses the same settings and logs directory as Chatterino 2 (`Chatterino2`). Existing Chatterino 2 logs are accessible in exactly the same location and format.
+</Accordion>

@@ -1,0 +1,100 @@
+---
+title: IRC
+description: Connect to standard IRC servers and channels alongside your Twitch chat.
+---
+
+Chatterino7 includes IRC support for connecting to non-Twitch IRC servers. This lets you monitor and participate in IRC channels in the same multi-split interface you use for Twitch chat.
+
+<Note>
+  Twitch's own chat is delivered over a Twitch-flavored IRC gateway internally, but Twitch channels are managed separately as first-class channels. The IRC provider described here is for **external IRC servers** such as Libera.Chat, IRCnet, or self-hosted IRC instances.
+</Note>
+
+## Adding an IRC Server
+
+<Steps>
+  <Step title="Open Settings">
+    Click the gear icon or press `Ctrl+P` and choose **Settings**.
+  </Step>
+  <Step title="Navigate to Connections">
+    Select the **Connections** (or **IRC**) tab in the Settings sidebar.
+  </Step>
+  <Step title="Add a new server">
+    Click **Add server** and fill in the connection details:
+
+    | Field | Description |
+    |-------|-------------|
+    | **Server** | Hostname or IP address (e.g. `irc.libera.chat`) |
+    | **Port** | Default `6697` for TLS, `6667` for plain text |
+    | **Use SSL/TLS** | Enable for encrypted connections (recommended) |
+    | **Nickname** | Your IRC nickname |
+    | **Username** | Your IRC username (often the same as nickname) |
+    | **Real name** | Your real name or any string |
+    | **Password** | Server or NickServ password (optional) |
+  </Step>
+  <Step title="Connect">
+    Click **Connect** (or **Save**). Chatterino7 establishes the IRC connection and marks the server as connected.
+  </Step>
+</Steps>
+
+## Joining an IRC Channel
+
+Once a server is connected:
+
+1. Open a new split or use an existing one.
+2. In the channel selector, type the server and channel in the format `server#channel`, for example `libera#chatterino`.
+3. Press **Enter**. Chatterino7 sends a `JOIN` command and begins displaying messages.
+
+## Supported IRC Features
+
+<CardGroup cols={2}>
+  <Card title="Message Sending" icon="paper-plane">
+    Send PRIVMSG messages to channels and users. Standard IRC text formatting is supported.
+  </Card>
+  <Card title="Multiple Servers" icon="server">
+    Connect to multiple IRC servers simultaneously. Each server maintains its own connection state.
+  </Card>
+  <Card title="TLS Encryption" icon="lock">
+    Secure connections over TLS are supported on standard IRC TLS ports.
+  </Card>
+  <Card title="Channel Listing" icon="list">
+    IRC channels you join appear as splits in the same layout alongside Twitch and Kick channels.
+  </Card>
+</CardGroup>
+
+## Limitations Compared to Twitch Channels
+
+IRC channels are simpler than Twitch channels and do not support platform-specific features:
+
+| Feature | Twitch | IRC |
+|---------|--------|-----|
+| Emotes (BTTV, FFZ, 7TV) | Yes | No |
+| Badges | Yes | No |
+| Channel points | Yes | No |
+| Predictions/polls | Yes | No |
+| Moderation actions (ban/timeout) | Yes | No |
+| Highlights by username | Yes | Yes |
+| Message filtering | Yes | Yes |
+| Custom notifications | Yes | No |
+| Whispers/DMs | Yes | No (private IRC messages displayed inline) |
+| Room modes | Yes | No |
+
+<Warning>
+  IRC does not provide user identity verification. Usernames on IRC can be impersonated. Do not treat IRC messages as authoritative for moderation or security decisions.
+</Warning>
+
+## IRC Channel Type
+
+Internally, IRC channels are identified as `ChannelType::Irc`. This means they receive the standard Chatterino7 message renderer but skip all Twitch-specific enrichments such as emote lookup, badge rendering, and Helix API calls.
+
+## Authentication
+
+IRC authentication is handled via the **Password** field in the server configuration. For networks using NickServ:
+
+- Some servers accept `PASS NickServ-password` during the connection handshake.
+- Others require you to send `/msg NickServ IDENTIFY <password>` after connecting.
+
+Chatterino7 sends the password field as the IRC `PASS` command. If your network uses a different authentication flow, you may need to send the identify message manually in the channel input.
+
+<Tip>
+  For Libera.Chat and similar networks, SASL authentication may be required. Check your network's documentation for the recommended authentication method and ensure the password field is formatted correctly (some networks use `username:password`).
+</Tip>

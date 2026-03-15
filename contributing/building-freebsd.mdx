@@ -1,0 +1,50 @@
+---
+title: Building on FreeBSD
+description: How to build Chatterino7 on FreeBSD 14.0-RELEASE and later.
+---
+
+Chatterino7 uses Qt 6 on FreeBSD. The minimum supported version is **Qt 6.6.0**.
+
+<Note>
+  This is known to work on FreeBSD 14.0-RELEASE amd64. It is likely to also work on older FreeBSD releases, other architectures, and FreeBSD 15.0-SNAP.
+</Note>
+
+## Build
+
+<Steps>
+  <Step title="Install build dependencies">
+    Install from package sources (or build from the ports tree):
+
+    ```sh
+    pkg install boost-libs git libnotify qt6-base qt6-svg qt6-imageformats qtkeychain-qt6 cmake
+    ```
+  </Step>
+  <Step title="Clone the repository">
+    ```sh
+    git clone --recurse-submodules https://github.com/Chatterino/chatterino2.git
+    cd chatterino2
+    ```
+  </Step>
+  <Step title="Create a build directory">
+    ```sh
+    mkdir build
+    cd build
+    ```
+  </Step>
+  <Step title="Configure with CMake">
+    ```sh
+    cmake ..
+    ```
+
+    To enable Lua plugins, add `-DCHATTERINO_PLUGINS=ON`.
+
+    <Note>
+      Generating JSON implementation of EventSub blobs can be slow. If you want to skip it, add `-DSKIP_JSON_GENERATION=On`.
+    </Note>
+  </Step>
+  <Step title="Build the project">
+    ```sh
+    make
+    ```
+  </Step>
+</Steps>
